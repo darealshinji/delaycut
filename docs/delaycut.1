@@ -1,0 +1,92 @@
+.TH DELAYCUT 1 "JULY 2014" "v1.4.3.7"
+.SH NAME
+DelayCut \- cuts and corrects delay in ac3 and dts files
+.SH SYNOPSIS
+.B delaycut [\fRoptions\fB]
+
+.SH DESCRIPTION
+.B DelayCut
+corrects delay and is also able to cut audio files coded ac3, dts, mpa and wav.
+It is also able to fix CRC errors in ac3 and mpa files.
+
+.SH OPTIONS
+.TP
+\fB\-help
+List options.
+.TP
+\fB\-version
+Get current version.
+.TP
+\fB\-info
+Outputs info about input file in log file
+.TP
+\fB\-inputtype <string>
+Input type of delay/cut values. (default millseconds when not specified)
+[milliseconds, seconds, videoframes]
+.TP
+\fB\-fps <float|rational>
+Specify frame rate.
+Needed when inputtype is set to frames.
+.TP
+\fB\-fixcrc <string>
+Specify action to take in the case of crc errors [ignore, skip, fix, silence]
+.TP
+\fB\-startdelay <integer>
+Specify the needed frames added at the beginning of the file
+.TP
+\fB\-enddelay <integer>
+Specify the needed frames added at the end of the file
+.TP
+\fB\-same
+file length will be the same after adding delay
+.TP
+\fB\-auto
+detect start delay in filename (assuming DVD2AVI style)
+.TP
+\fB\-startcut <integer>
+Specify cut start point
+.TP
+\fB\-endcut <integer>
+Specify cut end point
+.TP
+\fB\-o <string>
+specify output file
+.TP
+\fB\-i <string>
+specify inputfile
+
+.SS "Return values"
+0: Success
+.br
+1: Something went wrong.
+
+.SS Examples
+.TP
+Get info: Log file will be myfile_log.txt
+.B delaycut \-info \-i myfile.ac3
+.TP
+Adds 100 msec of silence at the begining. File lenght will be the same
+.B delaycut \-startdelay 100 \-same \-i myfile.ac3
+.TP
+Adds 100 msec of silence at the begining. File lenght will be 100 msecs more
+.B delaycut \-startdelay 100 \-i myfile.ac3
+.TP
+Cuts start at 10.32 sec and ends at 15.20 sec.
+.B delaycut \-inputtype seconds \-startcut 10.32 \-endcut 15.20 \-i myfile.ac3
+.TP
+Cuts start at 10320 msec and ends at 15200 msec. Delay correction of 100 msec.
+.B delaycut \-startdelay 100 \-startcut 10320 \-endcut 15200 \-i myfile.ac3
+
+.SH COPYRIGHT
+Copyright \(co 2004 by jsoto
+.br
+Copyright \(co 2007 by madshi
+.br
+Copyright \(co 2009 by Chumbo
+.br
+Copyright \(co 2010 by Adam Thomas\-Murphy
+
+DelayCut is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or (at
+your option) any later version.
