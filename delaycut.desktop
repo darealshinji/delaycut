@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=DelayCut
+GenericName=audio file cutter
+Comment=cuts and corrects delay in ac3 and dts files
+Icon=delaycut
+Exec=delaycut %F
+Terminal=false
+Categories=AudioVideo;Audio;AudioVideoEditing;

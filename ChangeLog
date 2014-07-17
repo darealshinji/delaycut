@@ -1,0 +1,121 @@
+v1.4.3.7
+BugFix:      Fix logic for checking valid inputtype when using CLI.
+BugFix:      Fixed README and output of -help switch so the updated
+             switches are shown properly.
+
+v1.4.3.6
+Added:       Added support to specify delay/cut values in audio frames.
+Added:       Added "-help" switch to display the options available from CLI.
+BugFix:      Fixed so that delay field in GUI worked properly.
+BugFix:      Fixed CLI parser for to detect new switches.
+
+v1.4.3.5
+Added:       Logging of progress and error messages when using the CLI have been added back.
+Changed:     "-console" switch has been removed.  Switches to specify cut points have been renamed to 
+             "-startcut" and "-endcut" respectively.  Switches to specify delay values have been renmaed 
+             to "-startdelay" and "-enddelay" respectively.  "-i" switch introduced to allow the specifying 
+             of the input file path anywhere in the CLI arguments.  "-version" switches introduced to get 
+             the current version of the software.
+
+v1.4.3.4
+BugFix:      Fix rounding when converting between input types to a round half up scheme.  Also changed
+             the calculations for start and end frame to use the same.
+BugFix:      Fixed check for enabling the CRC group edit so it enables properly.
+BugFix:      Fix bug that where a pathological file caused the processing to never finish and UI hang.
+BugFix:      Calculated end frame is capped to the total frames in cases where end split value specified
+             exceeds length of file.
+Changed:     Renamed "original length" field to "preserve length".
+Changed:     End cut value of 0 is treated as end of file when calculating end frame.
+Changed:     End cut and start cut values no longer cause the other field to be overwritten.  All checks to make
+             sure that end cut is not smaller than start cut, except for the case of 0, happens when process
+             button is clicked.
+
+v1.4.3.2
+BugFix:      Fix autodelay detection so that it converts ms value in fileName to the selected input type.
+BugFix:      Fixed bugs in converting values between different input types.
+BugFix:      Fixed math errors when specifying delay in frames.
+BugFix:      Fixed bug where output file path wasn't updated when using 'Save As' dialog.
+
+v1.4.3.1
+BugFix:      Fix delay fields to properly accept negative delay.
+BugFix:      Fix for math when using frames as input type.
+
+v1.4.3.0     
+Added:       Add option to select type of input values you want to use for times (millseconds, seconds, frames).
+Added:       Added CLI switches to support new input value types.
+BugFix:      Stopped debug messagebox from appearing anymore.
+
+v1.4.2.0
+BugFix:      Fix for crash when opening files with Unicode characters.
+
+v1.4.1.0
+Added:       Add back CLI support.
+
+v1.4.0.0     
+BugFix:      Fix automatic delay detection.
+Improvement: Fix information text box to use look correct on all platforms.
+
+v1.4.0.0b3
+Changed:     Fix so that text in information text box is spaced properly when font size changes.
+
+v1.4.0.0b3
+Changed:     Changed UI to use layouts to fix rendering issues when different fonts/font sizes are used.
+
+v1.4.0.0b2
+Changed:     Fixed filter passed to filedialogs that caused no files to appear in Linux.
+
+v1.4.0.0b1
+Changed:     Rewrite in Qt.  License upgrade to GPLv3.
+
+v1.3.1.0
+Changed:     Add support to autofill delay values from filename.
+
+v1.3.0.0
+Changed:     Add eac3 support.
+
+v1.2.1.2
+BugFix:      Error in duration of Wav files
+
+v1.2.1.1
+Changed:     Maximum number of char changed to 8 in delay edit boxes
+BugFix:      Spaces in output path (CLI mode)
+
+v1.2.1.0
+Added:       44.1kHz and 32 kHz  ac3 support (suggested by tebasuna51)
+Improvement: In case of unsynchronized frame, rewind one frame more to look for the synch word inside the previous
+             frame. (suggested by tebasuna51)
+Changed:     AC3 silence frames are now calculated from only two patterns (2/0 and 5.1)
+
+v1.2.0.4
+Added:       Linear PCM (wav) support
+Added:       mpa checksum calculation and fixing.
+Added:       44.100 mpa minimum support. (short delays)
+BugFix:      Percentage dlg refresh 
+BugFix:      Different rate frames in dts caused delaycut to hang
+
+v1.2.0.3
+BugFix:      -auto option in CLI mode was broken
+
+v1.2.0.2
+BugFix:      mpa was broken in 1.2.0.1
+BugFix:      Info dlg refresh.
+
+v1.2.0.1
+Added:       mpa (fsample=48k) support.
+Added:       drag/drop files
+Added:       -auto option in CLI mode: autodetect the delay in input filename 
+Added:       -out option in CLI mode to specify the output filename.
+
+v1.1.0.4
+BugFix:      dts has been completely broken in 1.1.0.3 but nobody reported it????
+
+v1.1.0.3
+Improvement: Using fread and fwrite functions, delaycut is much faster than before.
+Changed:     Log window automaticaly scrolls to the end
+
+v1.1.0.2
+BugFix:      Some erroneous files can hang delaycut
+
+v1.1
+Bugfix:      Makelower in file extensions 
+Bugfix:      Only one message in the case of basic parameters change
