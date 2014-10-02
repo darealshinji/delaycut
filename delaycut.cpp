@@ -60,7 +60,7 @@ DelayCut::DelayCut(QWidget *parent) :
     inFileName(""),
     outFileName(""),
     logFileName(""),
-    versionString("delaycut v1.4.3.7")
+    versionString("delaycut v" VERSION)
 {
     ui->setupUi(this);
     delayac3 = new Delayac3;
