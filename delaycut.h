@@ -77,10 +77,8 @@ private:
     Delayac3 *delayac3;
     QString lastOpenDir;
     QString lastSaveDir;
-    QString logFileName;
     QString crcMode;
-    QString currentInputMode;
-    QString inFileName, outFileName;
+
     QValidator *cutValidator, *delayValidator, *fpsValidator;
     FILEINFO *fileInfo;
     QStringListModel *stringModel;
@@ -88,9 +86,11 @@ private:
     FILE* outputFile;
     FILE* logFile;
     bool abort, isCLI, writeConsole, isCut;
+    QString currentInputMode;
     int tabWidth, sizeOfSpace;
     QFontMetrics *currentFont;
     qreal startCut, endCut, startDelay, endDelay, fps;
+    QString inFileName, outFileName, logFileName;
     QThread *workerThread;
     QString versionString;
 
