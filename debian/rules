@@ -4,9 +4,6 @@
 %:
 	dh ${@} --parallel
 
-override_dh_auto_configure:
-	qmake
-
 override_dh_installchangelogs:
 	dh_installchangelogs ChangeLog
 
