@@ -78,7 +78,6 @@ private:
     QString lastOpenDir;
     QString lastSaveDir;
     QString crcMode;
-
     QValidator *cutValidator, *delayValidator, *fpsValidator;
     FILEINFO *fileInfo;
     QStringListModel *stringModel;
