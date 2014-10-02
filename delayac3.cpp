@@ -996,7 +996,7 @@ void Delayac3::delaympa()
     qint32 f_writeframe,nuerrors;
     qint64 n64skip;
     qint32 syncword,iID,layer,protection_bit,rate,fsamp,unused;
-    quint32 crc_check, crc_cal1;
+    quint32 crc_cal1;
     bool bEndOfFile;
     uchar caracter[MAXFRAMESIZE];
     qint32 j,i;

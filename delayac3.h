@@ -72,6 +72,7 @@ private:
     void writempaframe (FILE *fileout, uchar *p_frame);
     void writewavsample (FILE *fileout, uchar *p_frame, qint32 nubytes);
 
+    quint32 crc_check;
     quint32 p_bit;
     quint32 crc_table[256];
     bool tooManyErrors;
