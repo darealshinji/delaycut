@@ -2531,7 +2531,7 @@ void Delayac3::printline(QString csLinea, bool writeConsole)
     csLineaold=csLinea;
 
     if (writeConsole)
-        fprintf (stdout,QString(csLinea+"\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b").toUtf8().constData());
+        fprintf(stdout, "%s", QString(csLinea+"\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b").toUtf8().constData());
 }
 
 void Delayac3::printlog(FILE *logFile, QString csLinea, bool isCLI, bool writeConsole)
@@ -2540,12 +2540,12 @@ void Delayac3::printlog(FILE *logFile, QString csLinea, bool isCLI, bool writeCo
 
     if (tooManyErrors) return;
 
-    fprintf(logFile, QString(csLinea+"\n").toUtf8().constData());
+    fprintf(logFile, "%s", QString(csLinea+"\n").toUtf8().constData());
 
     if (isCLI)
     {
         if (writeConsole)
-            fprintf(stdout, QString(csLinea+"\n").toUtf8().constData());
+            fprintf(stdout, "%s", QString(csLinea+"\n").toUtf8().constData());
     }
 }
 

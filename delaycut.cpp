@@ -1171,31 +1171,31 @@ qint32 DelayCut::logInputInfo(QString fileName, QString extension)
         if (extension!="wav")
         {
             fprintf(logFile, "[Input info]\n");
-            fprintf(logFile, QString("Bitrate=%1\n").arg(fileInfo->bitrate).toUtf8().constData());
-            fprintf(logFile, QString("Actual rate=%1\n").arg(fileInfo->dactrate).toUtf8().constData());
-            fprintf(logFile, QString("Sampling Frec=%1\n").arg(fileInfo->fsample).toUtf8().constData());
-            fprintf(logFile, QString("TotalFrames=%1\n").arg(fileInfo->i64TotalFrames).toUtf8().constData());
-            fprintf(logFile, QString("Bytesperframe=%1\n").arg(fileInfo->dBytesperframe, 9, 'f', 4).toUtf8().constData());
-            fprintf(logFile, QString("Filesize=%1\n").arg(fileInfo->i64Filesize).toUtf8().constData());
-            fprintf(logFile, QString("FrameDuration=%1\n").arg(fileInfo->dFrameduration, 8, 'f', 4).toUtf8().constData());
-            fprintf(logFile, QString("Framespersecond=%1\n").arg(fileInfo->dFramesPerSecond, 8, 'f', 4).toUtf8().constData());
-            fprintf(logFile, QString("Duration=%1\n").arg(fileInfo->csOriginalDuration).toUtf8().constData());
-            fprintf(logFile, QString("Channels mode=%1\n").arg(fileInfo->csMode).toUtf8().constData());
-            fprintf(logFile, QString("LFE=%1\n").arg(fileInfo->csLFE).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Bitrate=%1\n").arg(fileInfo->bitrate).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Actual rate=%1\n").arg(fileInfo->dactrate).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Sampling Frec=%1\n").arg(fileInfo->fsample).toUtf8().constData());
+            fprintf(logFile, "%s", QString("TotalFrames=%1\n").arg(fileInfo->i64TotalFrames).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Bytesperframe=%1\n").arg(fileInfo->dBytesperframe, 9, 'f', 4).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Filesize=%1\n").arg(fileInfo->i64Filesize).toUtf8().constData());
+            fprintf(logFile, "%s", QString("FrameDuration=%1\n").arg(fileInfo->dFrameduration, 8, 'f', 4).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Framespersecond=%1\n").arg(fileInfo->dFramesPerSecond, 8, 'f', 4).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Duration=%1\n").arg(fileInfo->csOriginalDuration).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Channels mode=%1\n").arg(fileInfo->csMode).toUtf8().constData());
+            fprintf(logFile, "%s", QString("LFE=%1\n").arg(fileInfo->csLFE).toUtf8().constData());
         }
         else
         {
             fprintf(logFile, "[Input info]\n");
-            fprintf(logFile, QString("Bitrate=%1\n").arg(fileInfo->bitrate).toUtf8().constData());
-            fprintf(logFile, QString("Actual rate=%1\n").arg(fileInfo->dactrate).toUtf8().constData());
-            fprintf(logFile, QString("Byte rate=%1\n").arg(fileInfo->byterate).toUtf8().constData());
-            fprintf(logFile, QString("Sampling Frec=%1\n").arg(fileInfo->fsample).toUtf8().constData());
-            fprintf(logFile, QString("Bits of Prec=%1\n").arg(fileInfo->iBits).toUtf8().constData());
-            fprintf(logFile, QString("TotalSamples=%1\n").arg(fileInfo->i64TotalFrames).toUtf8().constData());
-            fprintf(logFile, QString("Bytespersample=%1\n").arg(fileInfo->dBytesperframe, 9, 'f', 4).toUtf8().constData());
-            fprintf(logFile, QString("Filesize=%1\n").arg(fileInfo->i64Filesize).toUtf8().constData());
-            fprintf(logFile, QString("Duration=%1\n").arg(fileInfo->csOriginalDuration).toUtf8().constData());
-            fprintf(logFile, QString("Channels mode=%1\n").arg(fileInfo->csMode).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Bitrate=%1\n").arg(fileInfo->bitrate).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Actual rate=%1\n").arg(fileInfo->dactrate).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Byte rate=%1\n").arg(fileInfo->byterate).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Sampling Frec=%1\n").arg(fileInfo->fsample).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Bits of Prec=%1\n").arg(fileInfo->iBits).toUtf8().constData());
+            fprintf(logFile, "%s", QString("TotalSamples=%1\n").arg(fileInfo->i64TotalFrames).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Bytespersample=%1\n").arg(fileInfo->dBytesperframe, 9, 'f', 4).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Filesize=%1\n").arg(fileInfo->i64Filesize).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Duration=%1\n").arg(fileInfo->csOriginalDuration).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Channels mode=%1\n").arg(fileInfo->csMode).toUtf8().constData());
         }
         fclose(logFile);
         return 0;
@@ -1218,18 +1218,18 @@ qint32 DelayCut::logTargetInfo(QString fileName, QString extension)
         if (extension!="wav")
         {
             fprintf(logFile, "[Target info]\n");
-            fprintf(logFile, QString("StartFrame=%1\n").arg(fileInfo->i64StartFrame).toUtf8().constData());
-            fprintf(logFile, QString("EndFrame=%1\n").arg(fileInfo->i64EndFrame).toUtf8().constData());
-            fprintf(logFile, QString("NotFixedDelay=%1\n").arg(fileInfo->dNotFixedDelay, 8, 'f', 4).toUtf8().constData());
-            fprintf(logFile, QString("Duration=%1\n").arg(fileInfo->csTimeLengthEst).toUtf8().constData());
+            fprintf(logFile, "%s", QString("StartFrame=%1\n").arg(fileInfo->i64StartFrame).toUtf8().constData());
+            fprintf(logFile, "%s", QString("EndFrame=%1\n").arg(fileInfo->i64EndFrame).toUtf8().constData());
+            fprintf(logFile, "%s", QString("NotFixedDelay=%1\n").arg(fileInfo->dNotFixedDelay, 8, 'f', 4).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Duration=%1\n").arg(fileInfo->csTimeLengthEst).toUtf8().constData());
         }
         else
         {
             fprintf(logFile, "[Target info]\n");
-            fprintf(logFile, QString("StartSample=%1\n").arg(fileInfo->i64StartFrame).toUtf8().constData());
-            fprintf(logFile, QString("EndSample=%1\n").arg(fileInfo->i64EndFrame).toUtf8().constData());
-            fprintf(logFile, QString("NotFixedDelay=%1\n").arg(fileInfo->dNotFixedDelay, 8, 'f', 4).toUtf8().constData());
-            fprintf(logFile, QString("Duration=%1\n").arg(fileInfo->csTimeLengthEst).toUtf8().constData());
+            fprintf(logFile, "%s", QString("StartSample=%1\n").arg(fileInfo->i64StartFrame).toUtf8().constData());
+            fprintf(logFile, "%s", QString("EndSample=%1\n").arg(fileInfo->i64EndFrame).toUtf8().constData());
+            fprintf(logFile, "%s", QString("NotFixedDelay=%1\n").arg(fileInfo->dNotFixedDelay, 8, 'f', 4).toUtf8().constData());
+            fprintf(logFile, "%s", QString("Duration=%1\n").arg(fileInfo->csTimeLengthEst).toUtf8().constData());
         }
         fclose(logFile);
         return 0;
