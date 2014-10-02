@@ -926,7 +926,7 @@ void DelayCut::on_originalLengthCheckBox_toggled(bool checked)
     }
 }
 
-void DelayCut::on_fpsLineEdit_textChanged(const QString &arg1)
+void DelayCut::on_fpsLineEdit_textChanged()
 {
     if (ui->fpsLineEdit->text().isEmpty())
     {

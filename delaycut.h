@@ -67,7 +67,7 @@ private slots:
     void on_quitButton_clicked();
     void on_inputFileLineEdit_textChanged(const QString &arg1);
     void on_inputUnitsComboBox_activated(const QString &itemText);
-    void on_fpsLineEdit_textChanged(const QString &arg1);
+    void on_fpsLineEdit_textChanged();
     void on_abortButton_clicked();
 
 private:
