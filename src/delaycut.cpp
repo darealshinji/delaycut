@@ -68,6 +68,7 @@ DelayCut::DelayCut(QWidget *parent) :
     stringModel = new QStringListModel;
     fileInfo = new FILEINFO;
     this->setWindowTitle(versionString);
+    this->setWindowIcon(QIcon(":/delaycut.png"));
 
     delayValidator = new QIntValidator(-9999999, 99999999, this);
     cutValidator = new QIntValidator(0, 99999999, this);

@@ -3,22 +3,26 @@ CONFIG     += qt console
 TARGET      = delaycut
 TEMPLATE    = app
 
-SOURCES    += main.cpp\
-              delaycut.cpp \
-              delayac3.cpp \
-              dragdroplineedit.cpp
+INCLUDEPATH += src
 
-HEADERS    += delaycut.h \
-              sil48.h \
-              delayac3.h \
-              types.h \
-              dragdroplineedit.h
+SOURCES    += src/main.cpp\
+              src/delaycut.cpp \
+              src/delayac3.cpp \
+              src/dragdroplineedit.cpp
 
-FORMS      += delaycut.ui
+HEADERS    += src/delaycut.h \
+              src/sil48.h \
+              src/delayac3.h \
+              src/types.h \
+              src/dragdroplineedit.h
+
+FORMS      += src/delaycut.ui
+
+RESOURCES  += src/delaycut_png.qrc
 
 Win32 {
-RESOURCES  += delaycut.qrc
-RC_FILE     = delaycut.rc
+RESOURCES  += src/delaycut_ico.qrc
+RC_FILE     = src/delaycut.rc
 }
 
 Unix {
