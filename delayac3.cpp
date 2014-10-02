@@ -2137,7 +2137,7 @@ qint32 Delayac3::getmpainfo(FILE *in, FILEINFO *fileinfo)
     for (i=0;!feof(in) && i < 2 ;i++)
         caracter[i]=fgetc(in);
 
-    while (caracter[0] != 0xFF || (caracter[1] & 0xF0) != 0xF0 && !feof(in))
+    while (caracter[0] != 0xFF || ((caracter[1] & 0xF0) != 0xF0 && !feof(in)))
     {
             fseek(in, -1L, SEEK_CUR);
                 // search for 0xFFFX */
