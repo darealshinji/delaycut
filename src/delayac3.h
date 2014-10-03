@@ -72,9 +72,7 @@ private:
     void writempaframe (FILE *fileout, uchar *p_frame);
     void writewavsample (FILE *fileout, uchar *p_frame, qint32 nubytes);
 
-    qreal dFrameduration;
-    qreal fsample;
-    quint32 crc_check;
+    quint32 crc_check, mode;
     quint32 p_bit;
     quint32 crc_table[256];
     bool tooManyErrors;
@@ -90,15 +88,6 @@ private:
 
     void printline(QString csLinea, bool writeConsole);
     void printlog(FILE *logFile, QString csLinea, bool isCLI, bool writeConsole);
-
-    quint32 syncwordn, fscodn, frmsizen, acmodn, cal_crc1;
-    quint32 bit_ini;
-    quint32 padding_bit, private_bit, mode, mode_extension, copyright, original, emphasis;
-    quint32 syncword, iID;
-    quint32 unused, ftype, fshort, nblks;
-    quint32 crc1, bsid, surmixlev, dialnorm;
-    quint32 crc1n, compr, bsidn;
-    quint32 strmtyp, frmsize, substreamid;
 };
 
 #endif // DELAYAC3_H

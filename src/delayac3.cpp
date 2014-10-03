@@ -81,6 +81,8 @@ void Delayac3::delayeac3()
 {
     bool endOfFile, crcError;
     uchar character[MAXFRAMESIZE];
+//  quint32 syncwordn;
+    quint32 fscodn, frmsizen, acmodn, cal_crc1;
     qint32 iBytesPerFramen, iBytesPerFramePrev, crc;
     qint64 i64, i64StartFrame, i64EndFrame, i64nuframes, i64frameswritten,i64TotalFrames, i64nubytes, n64skip;
     qreal dFrameduration, f_writeframe,nuerrors;
@@ -220,7 +222,7 @@ void Delayac3::delayeac3()
             {
 
 // Some consistence checks
-    syncwordn=  getbits (16, character);
+//  syncwordn=  getbits (16, character);
                 getbits (2,  character);
                 getbits (3,  character);
     frmsizen=   getbits (11, character);
@@ -321,9 +323,9 @@ qint32 Delayac3::geteac3info (FILE *in, FILEINFO *fileinfo)
 {
 // BSI variables
 
+//  quint32 syncword, strmtyp, substreamid, frmsize, bsid, dialnorm, compre, compr;
     quint32 fscod, fscod2, numblckscod, numblcks;
-    quint32 acmod;
-    quint32 lfeon, compre;
+    quint32 lfeon, acmod;
 
 // Other vars
     quint32 nubytes,rate, BytesPerFrame, i;
@@ -333,7 +335,7 @@ qint32 Delayac3::geteac3info (FILE *in, FILEINFO *fileinfo)
 #else
     struct _stati64 statbuf;
 #endif
-    qreal FrameDuration, FramesPerSecond;
+    qreal fsample, FrameDuration, FramesPerSecond;
     qint64  nuframes, TimeLengthIni, rest;
     QString csRet,csAux;
     uchar caracter[MAXFRAMESIZE];
@@ -372,19 +374,19 @@ qint32 Delayac3::geteac3info (FILE *in, FILEINFO *fileinfo)
     if (nubytes <12 || caracter[0]!= 0x0B || caracter[1]!=0x77)
         return -1;
 
-    syncword=   getbits (16, caracter);
- strmtyp=    getbits (2,  caracter);
- substreamid=getbits (3,  caracter);
- frmsize=    getbits (11, caracter);
+//  syncword=   getbits (16, caracter);
+//  strmtyp=    getbits (2,  caracter);
+//  substreamid=getbits (3,  caracter);
+//  frmsize=    getbits (11, caracter);
     fscod=      getbits (2,  caracter);
- fscod2=     getbits (2,  caracter);
- numblckscod=fscod2;
+    fscod2=     getbits (2,  caracter);
+    numblckscod=fscod2;
     acmod=      getbits (3,  caracter);
     lfeon=      getbits (1,  caracter);
-    bsid=       getbits (5,  caracter);
-    dialnorm=   getbits (5,  caracter);
-    compre=     getbits (1,  caracter);
-    if (compre)	compr=getbits(8, caracter);
+//  bsid=       getbits (5,  caracter);
+//  dialnorm=   getbits (5,  caracter);
+//  compre=     getbits (1,  caracter);
+//  if (compre)	compr=getbits(8, caracter);
 
     if (fscod==0)	fsample=48.0;
     else if (fscod==1)	fsample=44.1;
@@ -495,6 +497,7 @@ void Delayac3::delayac3()
     qint64  i64nubytes;
     qreal dFrameduration;
     qint32 iBytesPerFramen,iBytesPerFramePrev;
+//  quint32 syncwordn, crc1n, bsidn;
     quint32 iFrmsizecodn;
     quint32 fscodn, bsmodn, acmodn;
     QString csTime,csAux,csAux1;
@@ -645,11 +648,11 @@ void Delayac3::delayac3()
             {
 
 // Some consistence checks
-                syncwordn=   getbits (16, caracter);
-                crc1n=       getbits (16, caracter);
+//              syncwordn=   getbits (16, caracter);
+//              crc1n=       getbits (16, caracter);
                 fscodn=      getbits (2, caracter);
-                iFrmsizecodn= getbits (6, caracter);
-                bsidn=       getbits (5, caracter);
+                iFrmsizecodn=getbits (6, caracter);
+//              bsidn=       getbits (5, caracter);
                 bsmodn=      getbits (3, caracter);
                 acmodn=      getbits (3, caracter);
                 if ((iFrmsizecodn >> 1) != (fileInfo->frmsizecod >>1) ||
@@ -910,12 +913,6 @@ void Delayac3::delaydts()
                 nblks=      getbits (7, caracter);
                 fsize=      getbits (14,caracter);
 */
-                unused=		getbits (32, caracter);
-                unused=     getbits (1, caracter);
-                unused=     getbits (5, caracter);
-                unused=     getbits (1, caracter);
-                unused=     getbits (7, caracter);
-                unused=     getbits (14,caracter);
                 amode=      getbits (6, caracter);
                 sfreq=      getbits (4, caracter);
                 rate=       getbits (5, caracter);
@@ -1409,6 +1406,7 @@ quint32 Delayac3::ac3_crc_bit(uchar *data, qint32 n, quint32 crc)
 void Delayac3::delaywav()
 {
     qint64 i64, i64StartFrame, i64EndFrame, i64nuframes, i64frameswritten, i64TotalFrames;
+//  qreal dFrameduration;
     qint64  i64nubytes;
     qint32 iBytesPerFrame;
     qint32 iInidata;
@@ -1422,7 +1420,7 @@ void Delayac3::delaywav()
     i64StartFrame=fileInfo->i64StartFrame;
     i64EndFrame=fileInfo->i64EndFrame;
     i64nuframes=i64EndFrame-i64StartFrame+1;
-    dFrameduration=fileInfo->dFrameduration;
+//  dFrameduration=fileInfo->dFrameduration;
     i64TotalFrames = fileInfo->i64TotalFrames;
     iBytesPerFrame= (int)fileInfo->dBytesperframe;
 
@@ -1687,10 +1685,8 @@ qint32 Delayac3::getwavinfo(FILE *in, FILEINFO *fileinfo)
 qint32 Delayac3::getac3info(FILE *in, FILEINFO *fileinfo)
 {
 // BSI variables
-
-    quint32 fscod,frmsizecod;
-    quint32 bsmod, acmod, cmixlev, dsurmod;
-    quint32 lfeon, compre, compr;
+    quint32 fscod, frmsizecod, bsmod, acmod, lfeon;
+//  quint32 compre, compr, cmixlev, surmixlev, crc1, bsid, dialnorm, dsurmod;
 
 // Other vars
     quint32 nubytes,rate, BytesPerFrame, i;
@@ -1699,7 +1695,7 @@ qint32 Delayac3::getac3info(FILE *in, FILEINFO *fileinfo)
 #else
     struct _stati64 statbuf;
 #endif
-    qreal FrameDuration, FramesPerSecond;
+    qreal fsample, FrameDuration, FramesPerSecond;
     qint64 nuframes, TimeLengthIni, rest;
     uchar caracter[MAXFRAMESIZE];
     quint32 frame_size, frame_size_58, cal_crc2, cal_crc1, crc_inv;
@@ -1743,21 +1739,21 @@ qint32 Delayac3::getac3info(FILE *in, FILEINFO *fileinfo)
     if (nubytes <12 || caracter[0]!= 0x0B || caracter[1]!=0x77)
         return -1;
 
-    surmixlev=cmixlev=dsurmod=compr=0;
+//  surmixlev=cmixlev=dsurmod=compr=0;
     syncword=   getbits (16, caracter);
-    crc1=       getbits (16, caracter);
+//  crc1=       getbits (16, caracter);
     fscod=      getbits (2,  caracter);
     frmsizecod= getbits (6,  caracter);
-    bsid=       getbits (5,  caracter);
+//  bsid=       getbits (5,  caracter);
     bsmod=      getbits (3,  caracter);
     acmod=      getbits (3,  caracter);
-    if ((acmod & 0x01) && (acmod != 0x01)) cmixlev=getbits(2, caracter);
-    if (acmod & 0x4)	surmixlev=getbits(2, caracter);
-    if (acmod == 0x2) dsurmod=getbits(2, caracter);
+//  if ((acmod & 0x01) && (acmod != 0x01)) cmixlev=getbits(2, caracter);
+//  if (acmod & 0x4)  surmixlev=getbits(2, caracter);
+//  if (acmod == 0x2) dsurmod=getbits(2, caracter);
     lfeon=      getbits(1, caracter);
-    dialnorm=   getbits(5, caracter);
-    compre=     getbits(1, caracter);
-    if (compre)	compr=getbits(8, caracter);
+//  dialnorm=   getbits(5, caracter);
+//  compre=     getbits(1, caracter);
+//  if (compre) compr=getbits(8, caracter);
 
     if (fscod==0)		fsample=48.0;
     else if (fscod==1)	fsample=44.1;
@@ -1933,11 +1929,13 @@ qint32 Delayac3::getdtsinfo(FILE *in, FILEINFO *fileinfo)
     uchar caracter[MAXFRAMESIZE];
     quint32 cpf;
     quint32 fsize, amode, sfreq, rate, lfeon;
+//  quint32 ftype, fshort, nblks, unused;
 #ifndef Q_WS_WIN
     struct stat64 statbuf;
 #else
     struct _stati64 statbuf;
 #endif
+//  qreal fsample;
     qreal FrameDuration, FramesPerSecond;
     qint64 nuframes, TimeLengthIni, rest;
     qreal dactrate;
@@ -1967,22 +1965,22 @@ qint32 Delayac3::getdtsinfo(FILE *in, FILEINFO *fileinfo)
     nubytes=readdtsframe (in, caracter);
 
     syncword=   getbits (32, caracter);
-    ftype=      getbits (1, caracter);
-    fshort=     getbits (5, caracter);
+//  ftype=      getbits (1, caracter);
+//  fshort=     getbits (5, caracter);
     cpf=        getbits (1, caracter);
-    nblks=      getbits (7, caracter);
+//  nblks=      getbits (7, caracter);
     fsize=      getbits (14,caracter);
     amode=      getbits (6, caracter);
     sfreq=      getbits (4, caracter);
     rate=       getbits (5, caracter);
-    unused=		getbits (10, caracter);
+//  unused=     getbits (10, caracter);
     lfeon=		getbits (1, caracter);
 
     rate=dtsbitrate[rate];
     dactrate=(qreal)rate;
     if (rate==768) dactrate=754.5;
     if (rate== 1536) dactrate=1509.75;
-    fsample=((qreal)(dtsfsample[sfreq]))/1000.0;
+//  fsample=((qreal)(dtsfsample[sfreq]))/1000.0;
 
 #ifndef Q_WS_WIN
     fstat64(fileno(in), &statbuf);
@@ -2103,12 +2101,15 @@ qint32 Delayac3::getmpainfo(FILE *in, FILEINFO *fileinfo)
 {
     quint32 nubytes,i;
     uchar caracter[MAXFRAMESIZE];
-    quint32 rate, fsamp, layer, protection_bit ;
+    quint32 rate, fsamp, layer, protection_bit;
+//  quint32 mode_extension, copyright, original, emphasis;
+//  quint32 crc_check;
 #ifndef Q_WS_WIN
     struct stat64 statbuf;
 #else
     struct _stati64 statbuf;
 #endif
+//  qreal fsample;
     qreal FrameDuration, FramesPerSecond, BytesPerFrame;
     qint64  nuframes, TimeLengthIni, rest;
 //	double dactrate;
@@ -2156,11 +2157,12 @@ qint32 Delayac3::getmpainfo(FILE *in, FILEINFO *fileinfo)
     fsamp=				getbits (2,caracter);
     padding_bit=		getbits (1, caracter);
     private_bit=		getbits (1, caracter);
-    mode=				getbits (2, caracter);
+/*  mode=				getbits (2, caracter);
     mode_extension=		getbits (2, caracter);
     copyright=			getbits (1, caracter);
     original=			getbits (1, caracter);
     emphasis=			getbits (2, caracter);
+*/
 
 //	MpegVers= ((syncword & 0x1)<<1) + iID;
 // FFFC--> MPeg 1
@@ -2175,8 +2177,8 @@ qint32 Delayac3::getmpainfo(FILE *in, FILEINFO *fileinfo)
 //      Case 3
 //        AddInfo("1" + CR$)
 
-    if (protection_bit==0)
-        crc_check=		getbits (16, caracter);
+//    if (protection_bit==0)
+//        crc_check=getbits (16, caracter);
 
     if		(layer==1) layer=3;
     else if (layer==3) layer=1;
@@ -2196,7 +2198,7 @@ qint32 Delayac3::getmpainfo(FILE *in, FILEINFO *fileinfo)
     else if (fsamp==2)	fsamp=32000;
     else fsamp=44100;
 
-    fsample=(double)fsamp;
+//  fsample=(double)fsamp;
 
     if (layer==1)
     {
@@ -2445,9 +2447,10 @@ qint32 Delayac3::gettargetinfo(FILEINFO *fileinfo, qreal startDelay, qreal endDe
 quint32 Delayac3::getbits(qint32 number, uchar *p_frame)
 {
     quint32 byte_ini, bit_end, byte_end, output;
+//  quint32 bit_ini;
 
     byte_ini = p_bit / 8;
-    bit_ini = p_bit % 8;
+//  bit_ini = p_bit % 8;
 
     p_bit += number;
 
