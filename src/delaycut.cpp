@@ -64,7 +64,7 @@ DelayCut::DelayCut(QWidget *parent) :
 {
     ui->setupUi(this);
     delayac3 = new Delayac3;
-    delayac3->ac3_crc_init();    
+    delayac3->ac3_crc_init();
     stringModel = new QStringListModel;
     fileInfo = new FILEINFO;
     this->setWindowTitle(versionString);
@@ -182,7 +182,7 @@ void DelayCut::execCLI()
         fprintf(stdout, "%s\n", versionString.toStdString().c_str());
         exit(EXIT_SUCCESS);
     }
-    
+
     writeConsole = true;
     isCLI = true;
     QString parameter;
@@ -360,7 +360,7 @@ void DelayCut::execCLI()
             }
         }
     }
-    
+
     if (inFileName.isEmpty())
     {
         fprintf(stderr, "No valid input file specified.\n");
@@ -378,12 +378,12 @@ void DelayCut::execCLI()
         {
             exit(EXIT_FAILURE);
         }
-        
+
         if (endCut < 0)
         {
             exit(EXIT_FAILURE);
         }
-        
+
         if (endCut != 0 && (endCut < startCut))
         {
             exit(EXIT_FAILURE);
@@ -1022,7 +1022,7 @@ void DelayCut::on_endDelayLineEdit_textEdited(const QString &inEndDelay)
     }
     else
     {
-        endDelay = inEndDelay.toDouble(); 
+        endDelay = inEndDelay.toDouble();
     }
     if (!inFileName.isEmpty())
     {

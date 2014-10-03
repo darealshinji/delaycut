@@ -41,7 +41,7 @@ class DelayCut : public QMainWindow
 
 public slots:
     void onProcessingFinished(bool success);
-    
+
 public:
     explicit DelayCut(QWidget *parent = 0);
     ~DelayCut();

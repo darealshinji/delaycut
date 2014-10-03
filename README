@@ -1,3 +1,25 @@
+delaycut: cuts and corrects delay in ac3 and dts files
+Copyright (C) 2004 by jsoto
+Copyright (C) 2007 by madshi
+Copyright (C) 2009 by Chumbo
+Copyright (C) 2010 by Adam Thomas-Murphy
+
+DelayCut is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+DelayCut is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with DelayCut.  If not, see <http://www.gnu.org/licenses/>.
+
+====================================================================
+=============Changelog==============================================
+
 v1.4.3.7
 BugFix:      Fix logic for checking valid inputtype when using CLI.
 BugFix:      Fixed README and output of -help switch so the updated
@@ -90,7 +112,7 @@ v1.2.0.4
 Added:       Linear PCM (wav) support
 Added:       mpa checksum calculation and fixing.
 Added:       44.100 mpa minimum support. (short delays)
-BugFix:      Percentage dlg refresh 
+BugFix:      Percentage dlg refresh
 BugFix:      Different rate frames in dts caused delaycut to hang
 
 v1.2.0.3
@@ -103,7 +125,7 @@ BugFix:      Info dlg refresh.
 v1.2.0.1
 Added:       mpa (fsample=48k) support.
 Added:       drag/drop files
-Added:       -auto option in CLI mode: autodetect the delay in input filename 
+Added:       -auto option in CLI mode: autodetect the delay in input filename
 Added:       -out option in CLI mode to specify the output filename.
 
 v1.1.0.4
@@ -117,5 +139,50 @@ v1.1.0.2
 BugFix:      Some erroneous files can hang delaycut
 
 v1.1
-Bugfix:      Makelower in file extensions 
+Bugfix:      Makelower in file extensions
 Bugfix:      Only one message in the case of basic parameters change
+
+
+====================================================================
+
+Command Line Instructions
+Output and log files will be in the same path than the input file.
+
+Options:
+-help:                 List options.
+-version:              Get current version.
+-info:                 Outputs info about input file in log file
+-inputtype <string>:   Input type of delay/cut values. (default millseconds
+                       when not specified) [milliseconds, seconds, videoframes]
+-fps <float|rational>: Specify frame rate.
+                       Needed when inputtype is set to frames.
+-fixcrc <string>:      Specify action to take in the case of crc errors
+                       [ignore, skip, fix, silence]
+-startdelay <integer>: Specify the needed frames added at the beginning of the file
+-enddelay <integer>:   Specify the needed frames added at the end of the file
+-same:                 file length will be the same after adding delay
+-auto:                 detect start delay in filename (assuming DVD2AVI style)
+-startcut <integer>:   Specify cut start point
+-endcut <integer>:     Specify cut end point
+-o <string>:           specify output file
+-i <string>:           specify inputfile
+
+Return values
+0: Success
+1: Something went wrong.
+
+Examples:
+Get info: Log file will be myfile_log.txt
+    delaycut -info -i myfile.ac3
+
+Adds 100 msec of silence at the begining. File lenght will be the same
+    delaycut -startdelay 100 -same -i myfile.ac3
+
+Adds 100 msec of silence at the begining. File lenght will be 100 msecs more
+    delaycut -startdelay 100 -i myfile.ac3
+
+Cuts start at 10.32 sec and ends at 15.20 sec.
+    delaycut -inputtype seconds -startcut 10.32 -endcut 15.20 -i myfile.ac3
+
+Cuts start at 10320 msec and ends at 15200 msec. Delay correction of 100 msec.
+    delaycut -startdelay 100 -startcut 10320 -endcut 15200 -i myfile.ac3
