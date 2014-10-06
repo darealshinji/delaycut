@@ -1002,6 +1002,7 @@ void Delayac3::delaympa()
     qint32 *layerIIsub;
     qint32 ratech;
     qint32 m_iCrc;
+    quint32 crc_check = 0;
 
     if (fixCRC == "IGNORED")
     {
@@ -2100,6 +2101,7 @@ qint32 Delayac3::getmpainfo(FILE *in, FILEINFO *fileinfo)
     quint32 nubytes, i;
     uchar caracter[MAXFRAMESIZE];
     quint32 rate, fsamp, layer, protection_bit;
+    quint32 mode = 0;
 //  quint32 mode_extension, copyright, original, emphasis;
 //  quint32 crc_check;
 #ifndef Q_WS_WIN
