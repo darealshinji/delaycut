@@ -29,9 +29,14 @@ RESOURCES  += src/delaycut_ico.qrc
 RC_FILE     = src/delaycut.rc
 }
 
-Unix {
+!Win32 {
 RESOURCES  += src/delaycut_png.qrc
 target.path = /usr/bin
 INSTALLS   += target
 }
+
+QMAKE_CLEAN += qrc_delaycut_ico.cpp \
+               qrc_delaycut_ico.o \
+               qrc_delaycut_png.cpp \
+               qrc_delaycut_png.o
 
