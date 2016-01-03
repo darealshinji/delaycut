@@ -12,7 +12,7 @@ BugFix:      Fixed CLI parser for to detect new switches.
 v1.4.3.5
 Added:       Logging of progress and error messages when using the CLI have been added back.
 Changed:     "-console" switch has been removed.  Switches to specify cut points have been renamed to
-             "-startcut" and "-endcut" respectively.  Switches to specify delay values have been renmaed
+             "-startcut" and "-endcut" respectively.  Switches to specify delay values have been renamed
              to "-startdelay" and "-enddelay" respectively.  "-i" switch introduced to allow the specifying
              of the input file path anywhere in the CLI arguments.  "-version" switches introduced to get
              the current version of the software.
