@@ -17,8 +17,8 @@
     along with DelayCut.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef DC_TYPES_H
+#define DC_TYPES_H
 
 #include <QString>
 
@@ -59,4 +59,4 @@ struct FILEINFO {
     qreal dNotFixedDelay;
 };
 
-#endif // TYPES_H
+#endif // DC_TYPES_H

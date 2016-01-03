@@ -34,7 +34,7 @@
 
 #include <wchar.h>
 #include "delayac3.h"
-#include "types.h"
+#include "dc_types.h"
 
 #include <cstdio>
 

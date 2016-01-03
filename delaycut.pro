@@ -19,7 +19,7 @@ SOURCES    += src/main.cpp\
 HEADERS    += src/delaycut.h \
               src/sil48.h \
               src/delayac3.h \
-              src/types.h \
+              src/dc_types.h \
               src/dragdroplineedit.h
 
 FORMS      += src/delaycut.ui

@@ -20,7 +20,7 @@
 #ifndef SIL48_H
 #define SIL48_H
 
-#include "types.h"
+#include "dc_types.h"
 
 // 38 values, filled with 64 up to 64 (0 to 0x3F)
 /*quint32 FrameSize_32[64]= {96,96,120,120,144,144,168,168,192,192,

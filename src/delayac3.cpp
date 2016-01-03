@@ -19,7 +19,7 @@
 */
 
 #include "delayac3.h"
-#include "types.h"
+#include "dc_types.h"
 #include "sil48.h"
 #include <sys/types.h>
 #include <sys/stat.h>
