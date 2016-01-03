@@ -45,7 +45,7 @@ public slots:
 public:
     explicit DelayCut(QWidget *parent = 0);
     ~DelayCut();
-    void execCLI();
+    void execCLI(int argc);
 
 protected:
     void keyPressEvent(QKeyEvent* event);

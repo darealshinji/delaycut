@@ -20,6 +20,8 @@
 #define DRAGDROPLINEEDIT_H
 
 #include <QtGui>
+#include <QLineEdit>
+#include <QMessageBox>
 
 class DragDropLineEdit : public QLineEdit
 {

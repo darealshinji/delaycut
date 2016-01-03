@@ -169,15 +169,17 @@ void DelayCut::printHelp()
     fprintf(stdout, "%s\n", "    delaycut -startdelay 100 -startcut 10320 -endcut 15200 -i myfile.ac3");
 }
 
-void DelayCut::execCLI()
+void DelayCut::execCLI(int argc)
 {
+    QStringList args = QApplication::arguments();
+
     Redirect_console();
-    if (QApplication::arguments().contains("-help"))
+    if (args.contains("-help"))
     {
         printHelp();
         exit(EXIT_SUCCESS);
     }
-    if (QApplication::arguments().contains("-version"))
+    if (args.contains("-version"))
     {
         fprintf(stdout, "%s\n", versionString.toStdString().c_str());
         exit(EXIT_SUCCESS);
@@ -191,14 +193,14 @@ void DelayCut::execCLI()
     fps = 29997/1001;
 
     startDelay = endDelay = startCut = endCut = 0;
-    for (int i = 1; i < QApplication::argc(); ++i)
+    for (int i = 1; i < argc; ++i)
     {
-        parameter = QApplication::arguments().at(i).toLower();
+        parameter = args.at(i).toLower();
 
-        if (parameter == "-i" && i < (QApplication::argc() - 1))
+        if (parameter == "-i" && i < (argc - 1))
         {
             i++;
-            inFileName = QFileInfo(QApplication::arguments().at(i)).absoluteFilePath();
+            inFileName = QFileInfo(args.at(i)).absoluteFilePath();
             if (inFileName.isEmpty() || inFileName.isNull())
             {
                 fprintf(stderr, "No valid input file specified.\n");
@@ -218,11 +220,11 @@ void DelayCut::execCLI()
         {
             printInfoOnly = true;
         }
-        else if (parameter == "-fps" && i < (QApplication::argc() - 1))
+        else if (parameter == "-fps" && i < (argc - 1))
         {
             i++;
             int pos = 0;
-            QString fpsParam = QApplication::arguments().at(i);
+            QString fpsParam = args.at(i);
             if (fpsValidator->validate(fpsParam, pos) == QValidator::Invalid)
             {
                 fprintf(stderr, "No valid fps value specified.\n");
@@ -250,10 +252,10 @@ void DelayCut::execCLI()
                 }
             }
         }
-        else if (parameter == "-inputtype" && i < (QApplication::argc() - 1))
+        else if (parameter == "-inputtype" && i < (argc - 1))
         {
             ++i;
-            currentInputMode = QApplication::arguments().at(i).toLower();
+            currentInputMode = args.at(i).toLower();
 
             QMessageBox::information(0, "info", currentInputMode);
             if (currentInputMode != "milliseconds" && currentInputMode != "seconds" && currentInputMode != "videoframes" && currentInputMode != "audioframes")
@@ -266,48 +268,48 @@ void DelayCut::execCLI()
         {
             isSame = true;
         }
-        else if (parameter == "-startdelay" && i < (QApplication::argc() - 1))
+        else if (parameter == "-startdelay" && i < (argc - 1))
         {
             i++;
-            if (sscanf(QApplication::arguments().at(i).toAscii().constData(), "%lf", &startDelay) != 1)
+            if (sscanf(args.at(i).toAscii().constData(), "%lf", &startDelay) != 1)
             {
                 fprintf(stderr, "No valid start delay value specified.\n");
                 exit(EXIT_FAILURE);
             }
         }
-        else if (parameter == "-enddelay" && i < (QApplication::argc() - 1))
+        else if (parameter == "-enddelay" && i < (argc - 1))
         {
             i++;
-            if (sscanf(QApplication::arguments().at(i).toAscii().constData(), "%lf", &endDelay) != 1)
+            if (sscanf(args.at(i).toAscii().constData(), "%lf", &endDelay) != 1)
             {
                 fprintf(stderr, "No valid end delay value specified.\n");
                 exit(EXIT_FAILURE);
             }
         }
-        else if (parameter == "-startcut" && i < (QApplication::argc() - 1))
+        else if (parameter == "-startcut" && i < (argc - 1))
         {
             i++;
-            if (sscanf(QApplication::arguments().at(i).toAscii().constData(), "%lf", &startCut) != 1)
+            if (sscanf(args.at(i).toAscii().constData(), "%lf", &startCut) != 1)
             {
                 fprintf(stderr, "No valid start cut value specified.\n");
                 exit(EXIT_FAILURE);
             }
             isCut = true;
         }
-        else if (parameter == "-endcut" && i < (QApplication::argc() - 1))
+        else if (parameter == "-endcut" && i < (argc - 1))
         {
             i++;
-            if (sscanf(QApplication::arguments().at(i).toAscii().constData(), "%lf", &endCut) != 1)
+            if (sscanf(args.at(i).toAscii().constData(), "%lf", &endCut) != 1)
             {
                 fprintf(stderr, "No valid end cut value specified.\n");
                 exit(EXIT_FAILURE);
             }
             isCut = true;
         }
-        else if (parameter == "-fixcrc" && i < (QApplication::argc() - 1))
+        else if (parameter == "-fixcrc" && i < (argc - 1))
         {
             i++;
-            QString crcOption = QApplication::arguments().at(i).toLower();
+            QString crcOption = args.at(i).toLower();
 
             if (crcOption == "ignore")
             {
@@ -331,10 +333,10 @@ void DelayCut::execCLI()
                 exit(EXIT_FAILURE);
             }
         }
-        else if (parameter == "-o" && i < (QApplication::argc() - 1))
+        else if (parameter == "-o" && i < (argc - 1))
         {
             i++;
-            outFileName = QFileInfo(QApplication::arguments().at(i)).absoluteFilePath();
+            outFileName = QFileInfo(args.at(i)).absoluteFilePath();
             if (outFileName.isEmpty() || outFileName.isNull())
             {
                 fprintf(stderr, "No valid output file specified.\n");
@@ -349,11 +351,11 @@ void DelayCut::execCLI()
                 exit(EXIT_FAILURE);
             }
 
-            if (i == (QApplication::argc() - 1) && QFile(parameter).exists())
+            if (i == (argc - 1) && QFile(parameter).exists())
             {
                 inFileName = QFileInfo(parameter).absoluteFilePath();;
             }
-            else if (i == (QApplication::argc() - 1) && !QFile(parameter).exists())
+            else if (i == (argc - 1) && !QFile(parameter).exists())
             {
                 fprintf(stderr, "No valid input file specified.\n");
                 exit(EXIT_FAILURE);

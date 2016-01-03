@@ -16,7 +16,7 @@
     along with DelayCut.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <QtGui/QApplication>
+#include <QApplication>
 #include "delaycut.h"
 #ifdef Q_WS_WIN
 #include <windows.h>
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        w.execCLI();
+        w.execCLI(argc);
     }
     return a.exec();
 }
