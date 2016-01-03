@@ -68,7 +68,11 @@ DelayCut::DelayCut(QWidget *parent) :
     stringModel = new QStringListModel;
     fileInfo = new FILEINFO;
     this->setWindowTitle(versionString);
+#ifdef Q_WS_WIN
+    this->setWindowIcon(QIcon(":/delaycut.ico"));
+#else
     this->setWindowIcon(QIcon(":/delaycut.png"));
+#endif
 
     delayValidator = new QIntValidator(-9999999, 99999999, this);
     cutValidator = new QIntValidator(0, 99999999, this);
@@ -257,11 +261,14 @@ void DelayCut::execCLI(int argc)
             ++i;
             currentInputMode = args.at(i).toLower();
 
-            QMessageBox::information(0, "info", currentInputMode);
             if (currentInputMode != "milliseconds" && currentInputMode != "seconds" && currentInputMode != "videoframes" && currentInputMode != "audioframes")
             {
                 fprintf(stderr, "No valid input type specified.\n");
                 exit(EXIT_FAILURE);
+            }
+            else
+            {
+                qDebug() << "Current input method =" << currentInputMode;
             }
         }
         else if (parameter == "-same")

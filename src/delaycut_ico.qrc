@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/new/resources">
+    <qresource>
         <file>delaycut.ico</file>
     </qresource>
 </RCC>

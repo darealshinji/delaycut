@@ -24,14 +24,13 @@ HEADERS    += src/delaycut.h \
 
 FORMS      += src/delaycut.ui
 
-RESOURCES  += src/delaycut_png.qrc
-
 Win32 {
 RESOURCES  += src/delaycut_ico.qrc
 RC_FILE     = src/delaycut.rc
 }
 
 Unix {
+RESOURCES  += src/delaycut_png.qrc
 target.path = /usr/bin
 INSTALLS   += target
 }

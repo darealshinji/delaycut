@@ -16,10 +16,12 @@
   <property name="windowTitle">
    <string>delaycut v1.4.3.7</string>
   </property>
+  <!--
   <property name="windowIcon">
    <iconset resource="delaycut.qrc">
     <normaloff>:/new/resources/delaycut.ico</normaloff>:/new/resources/delaycut.ico</iconset>
   </property>
+  -->
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="3,1">
     <item>
