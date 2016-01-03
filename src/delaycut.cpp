@@ -174,12 +174,12 @@ void DelayCut::execCLI(int argc)
     QStringList args = QApplication::arguments();
 
     Redirect_console();
-    if (args.contains("-help"))
+    if (args.contains("-help") || args.contains("--help"))
     {
         printHelp();
         exit(EXIT_SUCCESS);
     }
-    if (args.contains("-version"))
+    if (args.contains("-version") || args.contains("--version"))
     {
         fprintf(stdout, "%s\n", versionString.toStdString().c_str());
         exit(EXIT_SUCCESS);
