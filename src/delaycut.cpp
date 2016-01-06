@@ -144,6 +144,7 @@ void DelayCut::printHelp()
     fprintf(stdout, "%s\n", "-fixcrc <string>:      Specify action to take in the case of crc errors");
     fprintf(stdout, "%s\n", "                       [ignore, skip, fix, silence]");
     fprintf(stdout, "%s\n", "-startdelay <integer>: Specify the needed frames added at the beginning of the file");
+    fprintf(stdout, "%s\n", "-delay <integer>:      Alias for -startdelay");
     fprintf(stdout, "%s\n", "-enddelay <integer>:   Specify the needed frames added at the end of the file");
     fprintf(stdout, "%s\n", "-same:                 file length will be the same after adding delay");
     fprintf(stdout, "%s\n", "-auto:                 detect start delay in filename (assuming DVD2AVI style)");
@@ -170,7 +171,7 @@ void DelayCut::printHelp()
     fprintf(stdout, "%s\n", "    delaycut -inputtype seconds -startcut 10.32 -endcut 15.20 -i myfile.ac3");
     fprintf(stdout, "%s\n", "");
     fprintf(stdout, "%s\n", "Cuts start at 10320 msec and ends at 15200 msec. Delay correction of 100 msec.");
-    fprintf(stdout, "%s\n", "    delaycut -startdelay 100 -startcut 10320 -endcut 15200 -i myfile.ac3");
+    fprintf(stdout, "%s\n", "    delaycut -delay 100 -startcut 10320 -endcut 15200 -i myfile.ac3");
 }
 
 void DelayCut::execCLI(int argc)
@@ -275,7 +276,7 @@ void DelayCut::execCLI(int argc)
         {
             isSame = true;
         }
-        else if (parameter == "-startdelay" && i < (argc - 1))
+        else if ((parameter == "-startdelay" || parameter == "-delay") && i < (argc - 1))
         {
             i++;
             if (sscanf(args.at(i).toAscii().constData(), "%lf", &startDelay) != 1)
