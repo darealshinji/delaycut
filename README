@@ -159,6 +159,7 @@ Options:
 -fixcrc <string>:      Specify action to take in the case of crc errors
                        [ignore, skip, fix, silence]
 -startdelay <integer>: Specify the needed frames added at the beginning of the file
+-delay <integer>:      Alias for -startdelay
 -enddelay <integer>:   Specify the needed frames added at the end of the file
 -same:                 file length will be the same after adding delay
 -auto:                 detect start delay in filename (assuming DVD2AVI style)
