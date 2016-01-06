@@ -26,7 +26,7 @@
 #define VERSION "1.4.3.7"
 
 namespace Ui {
-class DelayCut;
+    class DelayCut;
 }
 
 class Delayac3;

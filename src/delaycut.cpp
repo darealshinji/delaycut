@@ -192,7 +192,7 @@ void DelayCut::execCLI(int argc)
     writeConsole = true;
     isCLI = true;
     QString parameter;
-    bool printInfoOnly = false, isSame = false, isAuto = false;
+    bool printInfoOnly = false, isSame = false; //isAuto = false;
 
     fps = 29997/1001;
 
@@ -218,7 +218,7 @@ void DelayCut::execCLI(int argc)
         }
         else if (parameter == "-auto")
         {
-            isAuto = true;
+            //isAuto = true;
         }
         else if (parameter == "-info")
         {
@@ -399,10 +399,6 @@ void DelayCut::execCLI(int argc)
         }
     }
 
-    if (!isAuto)
-    {
-        startDelay = 0;
-    }
     if (outFileName.isEmpty() || outFileName.isNull())
     {
         QString extension = QFileInfo(inFileName).suffix();
