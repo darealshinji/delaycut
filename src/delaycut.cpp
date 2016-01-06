@@ -193,7 +193,7 @@ void DelayCut::execCLI(int argc)
     writeConsole = true;
     isCLI = true;
     QString parameter;
-    bool printInfoOnly = false, isSame = false; //isAuto = false;
+    bool printInfoOnly = false, isSame = false, isAuto = false;
 
     fps = 29997/1001;
 
@@ -219,7 +219,7 @@ void DelayCut::execCLI(int argc)
         }
         else if (parameter == "-auto")
         {
-            //isAuto = true;
+            isAuto = true;
         }
         else if (parameter == "-info")
         {
@@ -408,59 +408,111 @@ void DelayCut::execCLI(int argc)
 
     GetInputFileInfo();
 
-    qreal length = (fileInfo->i64TotalFrames - 1) / fileInfo->dFramesPerSecond;
-    if (currentInputMode == "videoframes")
+    if (isAuto == true)
     {
-        qreal checkVal = startCut / fps;
-        if (checkVal > length)
+        QString fileNameWithoutPath = QFileInfo(inFileName).fileName().toLower();
+        qreal delay;
+
+        if (fileNameWithoutPath.contains(QString("delay")))
         {
-            fprintf(stderr, "Start cut value is larger than length of file.\n");
-            exit(EXIT_FAILURE);
-        }
-        checkVal = endCut * fps;
-        if (checkVal > length)
-        {
-            endCut = delayac3->round(length * fps);
-            fprintf(stdout, "End cut value is larger than length of file.  Truncating to %d frames.\n", (int) endCut);
-        }
-    }
-    if (currentInputMode == "audioframes")
-    {
-        if (startCut > (fileInfo->i64TotalFrames - 1))
-        {
-            fprintf(stderr, "Start cut value is larger than length of file.\n");
-            exit(EXIT_FAILURE);
-        }
-        if (endCut > (fileInfo->i64TotalFrames - 1))
-        {
-            endCut = (fileInfo->i64TotalFrames - 1);
-            fprintf(stdout, "End cut value is larger than length of file.  Truncating to %d frames.\n", (int) endCut);
-        }
-    }
-    else if (currentInputMode == "seconds")
-    {
-        if (startCut > length)
-        {
-            fprintf(stderr, "Start cut value is larger than length of file.\n");
-            exit(EXIT_FAILURE);
-        }
-        if (endCut > length)
-        {
-            endCut = length;
-            fprintf(stdout, "End cut value is larger than length of file.  Truncating to %f seconds.\n", endCut);
+            qint32 startIndex = fileNameWithoutPath.toLower().indexOf("delay") + 6;
+
+            if (startIndex != -1)
+            {
+                qint32 endIndex = fileNameWithoutPath.toLower().indexOf("ms", startIndex);
+                delay = fileNameWithoutPath.mid(startIndex, endIndex - startIndex).toDouble();
+
+                if (currentInputMode == "seconds")
+                {
+                    startDelay = delay / 1000.0;
+                    ui->startDelayLineEdit->setText(QString::number(startDelay, 'g', 3));
+                }
+                else if (currentInputMode == "videoframes")
+                {
+                    if (ui->fpsLineEdit->text().contains("/"))
+                    {
+                        QStringList fpsValues = ui->fpsLineEdit->text().split("/");
+                        if (fpsValues.length() == 3)
+                        {
+                            fps = fpsValues.at(0).toDouble() / fpsValues.at(1).toDouble();
+                        }
+                    }
+                    else
+                    {
+                        fps = ui->fpsLineEdit->text().toDouble();
+                    }
+                    startDelay = delayac3->round((delay / 1000.0) * fps);
+                    ui->startDelayLineEdit->setText(QString::number(startDelay));
+                }
+                else if (currentInputMode == "audioframes")
+                {
+                    startDelay = delayac3->round(delay / fileInfo->dFrameduration);
+                    ui->startDelayLineEdit->setText(QString::number((int) startDelay));
+                }
+                else
+                {
+                    startDelay = delay;
+                    ui->startDelayLineEdit->setText(QString::number((int) delay));
+                }
+            }
         }
     }
     else
     {
-        if (startCut > (length * 1000.0))
+        qreal length = (fileInfo->i64TotalFrames - 1) / fileInfo->dFramesPerSecond;
+        if (currentInputMode == "videoframes")
         {
-            fprintf(stderr, "Start cut value is larger than length of file.\n");
-            exit(EXIT_FAILURE);
+            qreal checkVal = startCut / fps;
+            if (checkVal > length)
+            {
+                fprintf(stderr, "Start cut value is larger than length of file.\n");
+                exit(EXIT_FAILURE);
+            }
+            checkVal = endCut * fps;
+            if (checkVal > length)
+            {
+                endCut = delayac3->round(length * fps);
+                fprintf(stdout, "End cut value is larger than length of file.  Truncating to %d frames.\n", (int) endCut);
+            }
         }
-        if (endCut > (length * 1000.0))
+        if (currentInputMode == "audioframes")
         {
-            endCut = delayac3->round(length * 1000.0);
-            fprintf(stdout, "End cut value is larger than length of file.  Truncating to %d milliseconds.\n", (int) endCut);
+            if (startCut > (fileInfo->i64TotalFrames - 1))
+            {
+                fprintf(stderr, "Start cut value is larger than length of file.\n");
+                exit(EXIT_FAILURE);
+            }
+            if (endCut > (fileInfo->i64TotalFrames - 1))
+            {
+                endCut = (fileInfo->i64TotalFrames - 1);
+                fprintf(stdout, "End cut value is larger than length of file.  Truncating to %d frames.\n", (int) endCut);
+            }
+        }
+        else if (currentInputMode == "seconds")
+        {
+            if (startCut > length)
+            {
+                fprintf(stderr, "Start cut value is larger than length of file.\n");
+                exit(EXIT_FAILURE);
+            }
+            if (endCut > length)
+            {
+                endCut = length;
+                fprintf(stdout, "End cut value is larger than length of file.  Truncating to %f seconds.\n", endCut);
+            }
+        }
+        else
+        {
+            if (startCut > (length * 1000.0))
+            {
+                fprintf(stderr, "Start cut value is larger than length of file.\n");
+                exit(EXIT_FAILURE);
+            }
+            if (endCut > (length * 1000.0))
+            {
+                endCut = delayac3->round(length * 1000.0);
+                fprintf(stdout, "End cut value is larger than length of file.  Truncating to %d milliseconds.\n", (int) endCut);
+            }
         }
     }
 
