@@ -18,7 +18,7 @@
 
 #include <QApplication>
 #include "delaycut.h"
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 #include <windows.h>
 #endif
 
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 
     if (isGUI)
     {
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
         FreeConsole();
 #endif
         w.show();

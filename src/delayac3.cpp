@@ -330,7 +330,7 @@ qint32 Delayac3::geteac3info (FILE *in, FILEINFO *fileinfo)
 // Other vars
     quint32 nubytes,rate, BytesPerFrame, i;
     char mode[40];
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     struct stat64 statbuf;
 #else
     struct _stati64 statbuf;
@@ -416,7 +416,7 @@ qint32 Delayac3::geteac3info (FILE *in, FILEINFO *fileinfo)
 
  rate = (BytesPerFrame * 8 * (750 / numblcks)) / 4000;
 
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     fstat64(fileno(in), &statbuf);
 #else
     _fstati64(fileno(in), &statbuf);
@@ -1556,7 +1556,7 @@ qint32 Delayac3::getwavinfo(FILE *in, FILEINFO *fileinfo)
     quint32 iByterate, nChannels, nBits, iRate, fsample;
     uchar caracter[50];
     uchar mybuffer[20];
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     struct stat64 statbuf;
 #else
     struct _stati64 statbuf;
@@ -1625,7 +1625,7 @@ qint32 Delayac3::getwavinfo(FILE *in, FILEINFO *fileinfo)
 
     nextbyte+=4;
 
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     fstat64(fileno(in), &statbuf);
 #else
     _fstati64(fileno(in), &statbuf);
@@ -1690,7 +1690,7 @@ qint32 Delayac3::getac3info(FILE *in, FILEINFO *fileinfo)
 
 // Other vars
     quint32 nubytes, rate, BytesPerFrame, i;
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     struct stat64 statbuf;
 #else
     struct _stati64 statbuf;
@@ -1790,7 +1790,7 @@ qint32 Delayac3::getac3info(FILE *in, FILEINFO *fileinfo)
 
     rate=bitrate[frmsizecod];
 
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     fstat64(fileno(in), &statbuf);
 #else
     _fstati64(fileno(in), &statbuf);
@@ -1930,7 +1930,7 @@ qint32 Delayac3::getdtsinfo(FILE *in, FILEINFO *fileinfo)
     quint32 cpf;
     quint32 fsize, amode, sfreq, rate, lfeon;
 //  quint32 ftype, fshort, nblks, unused;
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     struct stat64 statbuf;
 #else
     struct _stati64 statbuf;
@@ -1982,7 +1982,7 @@ qint32 Delayac3::getdtsinfo(FILE *in, FILEINFO *fileinfo)
     if (rate== 1536) dactrate=1509.75;
 //  fsample=((qreal)(dtsfsample[sfreq]))/1000.0;
 
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     fstat64(fileno(in), &statbuf);
 #else
     _fstati64(fileno(in), &statbuf);
@@ -2104,7 +2104,7 @@ qint32 Delayac3::getmpainfo(FILE *in, FILEINFO *fileinfo)
     quint32 mode = 0;
 //  quint32 mode_extension, copyright, original, emphasis;
 //  quint32 crc_check;
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     struct stat64 statbuf;
 #else
     struct _stati64 statbuf;
@@ -2212,7 +2212,7 @@ qint32 Delayac3::getmpainfo(FILE *in, FILEINFO *fileinfo)
     }
     if (BytesPerFrame > MAXFRAMESIZE) BytesPerFrame = MAXFRAMESIZE;
 
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     fstat64(fileno(in), &statbuf);
 #else
     _fstati64(fileno(in), &statbuf);

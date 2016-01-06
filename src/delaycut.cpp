@@ -38,7 +38,7 @@
 
 #include <cstdio>
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 #include "windows.h"
 #include "io.h"
 #include "fcntl.h"
@@ -68,7 +68,7 @@ DelayCut::DelayCut(QWidget *parent) :
     stringModel = new QStringListModel;
     fileInfo = new FILEINFO;
     this->setWindowTitle(versionString);
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
     this->setWindowIcon(QIcon(":/delaycut.ico"));
 #else
     this->setWindowIcon(QIcon(":/delaycut.png"));
@@ -110,7 +110,7 @@ DelayCut::~DelayCut()
 
 void DelayCut::Redirect_console()
 {
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
     int hCrtout,hCrterr;
     FILE *hfout, *hferr;
 
@@ -498,7 +498,7 @@ void DelayCut::keyPressEvent(QKeyEvent* event)
 
 void DelayCut::execute()
 {
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     outputFile = fopen(outFileName.toUtf8().constData(),"wb");
 #else
     outputFile = _wfopen(outFileName.toStdWString().c_str(), L"wb");
@@ -509,7 +509,7 @@ void DelayCut::execute()
         return;
     }
 
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     inputFile = fopen(inFileName.toUtf8().constData(),"rb");
 #else
     inputFile = _wfopen(inFileName.toStdWString().c_str(), L"rb");
@@ -521,7 +521,7 @@ void DelayCut::execute()
         return;
     }
 
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     logFile = fopen(logFileName.toUtf8().constData(),"a");
 #else
     logFile = _wfopen(logFileName.toStdWString().c_str(), L"a");
@@ -686,7 +686,7 @@ void DelayCut::SetOutputPath(QString fileName)
 void DelayCut::GetInputFileInfo()
 {
     if (fileInfo->type == "unknown") return;
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     inputFile = fopen(inFileName.toUtf8().constData(),"rb");
 #else
     inputFile = _wfopen(inFileName.toStdWString().c_str(), L"rb");
@@ -1167,7 +1167,7 @@ void DelayCut::onUpdateProgress(qint32 value)
 
 qint32 DelayCut::logInputInfo(QString fileName, QString extension)
 {
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     logFile = fopen(fileName.toUtf8().constData(),"w");
 #else
     logFile = _wfopen(fileName.toStdWString().c_str(), L"w");
@@ -1214,7 +1214,7 @@ qint32 DelayCut::logInputInfo(QString fileName, QString extension)
 
 qint32 DelayCut::logTargetInfo(QString fileName, QString extension)
 {
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     logFile = fopen(fileName.toUtf8().constData(),"a");
 #else
     logFile = _wfopen(fileName.toStdWString().c_str(), L"a");
