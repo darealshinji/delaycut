@@ -30,9 +30,9 @@ win32 {
 }
 
 !win32 {
-RESOURCES  += src/delaycut_png.qrc
-target.path = /usr/bin
-INSTALLS   += target
+  RESOURCES  += src/delaycut_png.qrc
+  target.path = /usr/bin
+  INSTALLS   += target
 }
 
 win32-msvc* {
