@@ -1,8 +1,8 @@
 QT         += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4) {
-QT += widgets
-DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x000000
+  QT += widgets
+  DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x000000
 }
 
 CONFIG     += qt console
@@ -24,15 +24,33 @@ HEADERS    += src/delaycut.h \
 
 FORMS      += src/delaycut.ui
 
-Win32 {
-RESOURCES  += src/delaycut_ico.qrc
-RC_FILE     = src/delaycut.rc
+win32 {
+  RESOURCES  += src/delaycut_ico.qrc
+  RC_FILE     = src/delaycut.rc
 }
 
-!Win32 {
+!win32 {
 RESOURCES  += src/delaycut_png.qrc
 target.path = /usr/bin
 INSTALLS   += target
+}
+
+win32-msvc* {
+  CONFIG += c++11 # C++11 support
+  QMAKE_CXXFLAGS += /bigobj # allow big objects
+  !contains(QMAKE_HOST.arch, x86_64):QMAKE_LFLAGS += /LARGEADDRESSAWARE #
+  QMAKE_CFLAGS_RELEASE += -WX
+  QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO += -WX
+
+
+  # for Windows XP compatibility
+  contains(QMAKE_HOST.arch, x86_64) {
+    #message(Going for Windows XP 64bit compatibility)
+    #QMAKE_LFLAGS += /SUBSYSTEM:WINDOWS,5.02 # Windows XP 64bit
+  } else {
+    message(Going for Windows XP 32bit compatibility)
+    QMAKE_LFLAGS += /SUBSYSTEM:WINDOWS,5.01 # Windows XP 32bit
+  }
 }
 
 QMAKE_CLEAN += qrc_delaycut_ico.cpp \
