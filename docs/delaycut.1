@@ -78,7 +78,10 @@ Cuts start at 10.32 sec and ends at 15.20 sec.
 .B delaycut \-inputtype seconds \-startcut 10.32 \-endcut 15.20 \-i myfile.ac3
 .TP
 Cuts start at 10320 msec and ends at 15200 msec. Delay correction of 100 msec.
-.B delaycut \-startdelay 100 \-startcut 10320 \-endcut 15200 \-i myfile.ac3
+.B delaycut \-delay 100 \-startcut 10320 \-endcut 15200 \-i myfile.ac3
+.TP
+Automatic delay correction based on the filename (\-500 msec in this case)
+.B delaycut \-auto "myfile DELAY \-500ms.ac3"
 
 .SH COPYRIGHT
 Copyright \(co 2004 by jsoto

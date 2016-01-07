@@ -172,6 +172,9 @@ void DelayCut::printHelp()
     fprintf(stdout, "%s\n", "");
     fprintf(stdout, "%s\n", "Cuts start at 10320 msec and ends at 15200 msec. Delay correction of 100 msec.");
     fprintf(stdout, "%s\n", "    delaycut -delay 100 -startcut 10320 -endcut 15200 -i myfile.ac3");
+    fprintf(stdout, "%s\n", "");
+    fprintf(stdout, "%s\n", "Automatic delay correction based on the filename (-500 msec in this case)");
+    fprintf(stdout, "%s\n", "    delaycut -auto \"myfile DELAY -500ms.ac3\"");
 }
 
 void DelayCut::execCLI(int argc)
