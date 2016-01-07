@@ -23,7 +23,7 @@
 
 #include <QMainWindow>
 
-#define VERSION "1.4.3.7"
+#define VERSION "1.4.3.7-1"
 
 namespace Ui {
     class DelayCut;

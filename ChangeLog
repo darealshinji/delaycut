@@ -1,3 +1,9 @@
+v1.4.3.7-1
+Added:       Added "-delay" switch as an alias for "-startdelay".
+Added:       Added "--help" and "--version" as aliases for "-help" and "-version".
+BugFix:      Fixed command line options "-auto" and "-startdelay" not working correctly.
+BugFix:      Fixed a messagebox from appearing when using CLI.
+
 v1.4.3.7
 BugFix:      Fix logic for checking valid inputtype when using CLI.
 BugFix:      Fixed README and output of -help switch so the updated
