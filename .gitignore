@@ -12,6 +12,7 @@
 # Qt-es
 /.qmake.cache
 /.qmake.stash
+/delaycut_plugin_import.cpp
 *.pro.user
 *.pro.user.*
 *.qbs.user
