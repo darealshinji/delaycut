@@ -35,6 +35,12 @@ win32 {
   INSTALLS   += target
 }
 
+win32-g++ {
+  # tested with i686-w64-mingw32.static-g++ (https://github.com/mxe/mxe)
+  # QMAKE_HOST.arch doesn't seem to work
+  !contains(QMAKE_TARGET.arch, x86_64):QMAKE_LFLAGS += -Wl,--large-address-aware
+}
+
 win32-msvc* {
   CONFIG += c++11 # C++11 support
   QMAKE_CXXFLAGS += /bigobj # allow big objects
