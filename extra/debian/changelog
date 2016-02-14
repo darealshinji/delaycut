@@ -1,8 +1,8 @@
-delaycut (1.4.3.7-1~trusty) trusty; urgency=low
+delaycut (1.4.3.8~trusty) trusty; urgency=low
 
   * See /usr/share/doc/delaycut/changelog.gz for more details.
 
- -- Marshall Banana <djcj@gmx.de>  Wed, 16 Jul 2014 16:55:35 +0200
+ -- Marshall Banana <djcj@gmx.de>  Sun, 14 Feb 2016 08:13:59 +0100
 
 delaycut (1.4.3.7) UNRELEASED; urgency=low
 

@@ -1,4 +1,5 @@
 /*  Copyright (C) 2010 by Adam Thomas-Murphy
+    Copyright (C) 2016 by djcj <djcj@gmx.de>
 
     This file is part of DelayCut.
 

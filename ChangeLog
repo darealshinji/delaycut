@@ -1,4 +1,4 @@
-v1.4.3.7-1
+v1.4.3.8
 Added:       Added "-delay" switch as an alias for "-startdelay".
 Added:       Added "--help" and "--version" as aliases for "-help" and "-version".
 BugFix:      Fixed command line options "-auto" and "-startdelay" not working correctly.

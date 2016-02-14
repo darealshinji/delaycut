@@ -1,6 +1,7 @@
 /*  Copyright (C) 2004 by jsoto
     2007-09-11 E-AC3 support added by www.madshi.net
     Copyright (C) 2010 by Adam Thomas-Murphy
+    Copyright (C) 2014, 2016 by djcj <djcj@gmx.de>
 
     This file is part of DelayCut.
 
