@@ -36,6 +36,8 @@ win32 {
 }
 
 win32-g++ {
+  QMAKE_CXXFLAGS += -Wno-unused-but-set-variable
+
   # tested with MXE (https://github.com/mxe/mxe)
   !contains(QMAKE_HOST.arch, x86_64):QMAKE_LFLAGS += -Wl,--large-address-aware
 }

@@ -324,7 +324,7 @@ qint32 Delayac3::geteac3info (FILE *in, FILEINFO *fileinfo)
 {
 // BSI variables
 
-//  quint32 syncword, strmtyp, substreamid, frmsize, bsid, dialnorm, compre, compr;
+    quint32 syncword, strmtyp, substreamid, frmsize, bsid, dialnorm, compre, compr;
     quint32 fscod, fscod2, numblckscod, numblcks;
     quint32 lfeon, acmod;
 
@@ -375,19 +375,19 @@ qint32 Delayac3::geteac3info (FILE *in, FILEINFO *fileinfo)
     if (nubytes <12 || caracter[0]!= 0x0B || caracter[1]!=0x77)
         return -1;
 
-//  syncword=   getbits (16, caracter);
-//  strmtyp=    getbits (2,  caracter);
-//  substreamid=getbits (3,  caracter);
-//  frmsize=    getbits (11, caracter);
+    syncword=   getbits (16, caracter);
+    strmtyp=    getbits (2,  caracter);
+    substreamid=getbits (3,  caracter);
+    frmsize=    getbits (11, caracter);
     fscod=      getbits (2,  caracter);
     fscod2=     getbits (2,  caracter);
     numblckscod=fscod2;
     acmod=      getbits (3,  caracter);
     lfeon=      getbits (1,  caracter);
-//  bsid=       getbits (5,  caracter);
-//  dialnorm=   getbits (5,  caracter);
-//  compre=     getbits (1,  caracter);
-//  if (compre)	compr=getbits(8, caracter);
+    bsid=       getbits (5,  caracter);
+    dialnorm=   getbits (5,  caracter);
+    compre=     getbits (1,  caracter);
+    if (compre) compr=getbits(8, caracter);
 
     if (fscod==0)      fsample=48.0;
     else if (fscod==1) fsample=44.1;
@@ -1687,7 +1687,7 @@ qint32 Delayac3::getac3info(FILE *in, FILEINFO *fileinfo)
 {
 // BSI variables
     quint32 fscod, frmsizecod, bsmod, acmod, lfeon;
-//  quint32 compre, compr, cmixlev, surmixlev, crc1, bsid, dialnorm, dsurmod;
+    quint32 compre, compr, cmixlev, surmixlev, crc1, bsid, dialnorm, dsurmod;
 
 // Other vars
     quint32 nubytes, rate, BytesPerFrame, i;
@@ -1740,21 +1740,21 @@ qint32 Delayac3::getac3info(FILE *in, FILEINFO *fileinfo)
     if (nubytes <12 || caracter[0]!= 0x0B || caracter[1]!=0x77)
         return -1;
 
-//  surmixlev=cmixlev=dsurmod=compr=0;
+    surmixlev=cmixlev=dsurmod=compr=0;
     syncword=  getbits (16, caracter);
-//  crc1=      getbits (16, caracter);
+    crc1=      getbits (16, caracter);
     fscod=     getbits (2,  caracter);
     frmsizecod=getbits (6,  caracter);
-//  bsid=      getbits (5,  caracter);
+    bsid=      getbits (5,  caracter);
     bsmod=     getbits (3,  caracter);
     acmod=     getbits (3,  caracter);
-//  if ((acmod & 0x01) && (acmod != 0x01)) cmixlev=getbits(2, caracter);
-//  if (acmod & 0x4)  surmixlev=getbits(2, caracter);
-//  if (acmod == 0x2) dsurmod=getbits(2, caracter);
+    if ((acmod & 0x01) && (acmod != 0x01)) cmixlev=getbits(2, caracter);
+    if (acmod & 0x4)  surmixlev=getbits(2, caracter);
+    if (acmod == 0x2) dsurmod=getbits(2, caracter);
     lfeon=     getbits(1, caracter);
-//  dialnorm=  getbits(5, caracter);
-//  compre=    getbits(1, caracter);
-//  if (compre) compr=getbits(8, caracter);
+    dialnorm=  getbits(5, caracter);
+    compre=    getbits(1, caracter);
+    if (compre) compr=getbits(8, caracter);
 
     if (fscod==0)      fsample=48.0;
     else if (fscod==1) fsample=44.1;
@@ -1930,19 +1930,19 @@ qint32 Delayac3::getdtsinfo(FILE *in, FILEINFO *fileinfo)
     uchar caracter[MAXFRAMESIZE];
     quint32 cpf;
     quint32 fsize, amode, sfreq, rate, lfeon;
-//  quint32 ftype, fshort, nblks, unused;
+    quint32 ftype, fshort, nblks, unused, fsample;
+//    qreal fsample;
+
 #ifndef Q_OS_WIN
     struct stat64 statbuf;
 #else
     struct _stati64 statbuf;
 #endif
-//  qreal fsample;
     qreal FrameDuration, FramesPerSecond;
     qint64 nuframes, TimeLengthIni, rest;
     qreal dactrate;
 
-
-    p_silence=dts_768k_48;
+//    p_silence=dts_768k_48;  asigned after
 
     // search for 7FFE8001 */
     for (i=0;!feof(in) && i < 4 ;i++)
@@ -1966,22 +1966,27 @@ qint32 Delayac3::getdtsinfo(FILE *in, FILEINFO *fileinfo)
     nubytes=readdtsframe (in, caracter);
 
     syncword=getbits (32, caracter);
-//  ftype=   getbits (1, caracter);
-//  fshort=  getbits (5, caracter);
+    ftype=   getbits (1, caracter);
+    fshort=  getbits (5, caracter);
     cpf=     getbits (1, caracter);
-//  nblks=   getbits (7, caracter);
+    nblks=   getbits (7, caracter);
     fsize=   getbits (14,caracter);
     amode=   getbits (6, caracter);
     sfreq=   getbits (4, caracter);
     rate=    getbits (5, caracter);
-//  unused=  getbits (10, caracter);
+    unused=  getbits (10, caracter);
     lfeon=   getbits (1, caracter);
 
+    BytesPerFrame=fsize+1;
     rate=dtsbitrate[rate];
-    dactrate=(qreal)rate;
-    if (rate==768)   dactrate=754.5;
-    if (rate== 1536) dactrate=1509.75;
+//  dactrate=(qreal)rate;
+//  if (rate==768)   dactrate=754.5;
+//  if (rate== 1536) dactrate=1509.75;
 //  fsample=((qreal)(dtsfsample[sfreq]))/1000.0;
+    fsample=dtsfsample[sfreq];
+//  Real bitrate in Kb/s is: (SampleRate * BytesPerFrame * 8 / SamplesPerFrame) / 1000
+//  Where SamplesPerFrame = 32 * (nblks+1). CHECK if op are correct
+    dactrate=((qreal)(fsample*BytesPerFrame))/(4000.0*(nblks+1));
 
 #ifndef Q_OS_WIN
     fstat64(fileno(in), &statbuf);
@@ -1989,7 +1994,6 @@ qint32 Delayac3::getdtsinfo(FILE *in, FILEINFO *fileinfo)
     _fstati64(fileno(in), &statbuf);
 #endif
 
-    BytesPerFrame=fsize+1;
     nuframes=       statbuf.st_size/BytesPerFrame;
     rest=           statbuf.st_size%nuframes;
     FramesPerSecond=(dactrate)*1000.0/(BytesPerFrame * 8);
@@ -2001,7 +2005,8 @@ qint32 Delayac3::getdtsinfo(FILE *in, FILEINFO *fileinfo)
                                     .arg((TimeLengthIni % 3600000) / 60000, 2, 10, QChar('0'))
                                     .arg((TimeLengthIni % 60000) / 1000, 2, 10, QChar('0'))
                                     .arg(TimeLengthIni % 1000, 3, 10, QChar('0'));
-    fileinfo->fsample=48000;
+//    fileinfo->fsample=48000;
+    fileinfo->fsample=fsample;
     fileinfo->layer=0;
     fileinfo->type="dts";
     fileinfo->dFrameduration=FrameDuration;
@@ -2043,9 +2048,9 @@ qint32 Delayac3::getdtsinfo(FILE *in, FILEINFO *fileinfo)
     for (i=0; i<nubytes; i++)
         silence[i]=caracter[i];
     p_silence=silence;
-    if (rate == 768)
+    if (rate == 768 && nubytes ==1006)
         p_silence=dts_768k_48;
-    if (rate == 1536)
+    if (rate == 1536 && nubytes ==2013)
         p_silence=dts_1536k_48;
 
     return 0;
@@ -2417,6 +2422,7 @@ qint32 Delayac3::gettargetinfo(FILEINFO *fileinfo, qreal startDelay, qreal endDe
     if (endCut > 0)
     {
         endFrame = round((-endDelay + round(endCut * 1000.0)) / frameDuration);
+        if (endFrame > startFrame) endFrame = endFrame - 1;
     }
     else // endsplit = 0 go until the end of the file
     {
@@ -2425,7 +2431,7 @@ qint32 Delayac3::gettargetinfo(FILEINFO *fileinfo, qreal startDelay, qreal endDe
 
     fileinfo->i64EndFrame = endFrame;
 
-    estimatedTimeLength = (qint64)((endFrame - startFrame) * frameDuration);
+    estimatedTimeLength = (qint64)((endFrame - startFrame + 1) * frameDuration);
 
     notFixedDelay = (startDelay + (startFrame * frameDuration)) - (startCut * 1000.0);
 
