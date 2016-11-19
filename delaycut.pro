@@ -36,9 +36,8 @@ win32 {
 }
 
 win32-g++ {
-  # tested with i686-w64-mingw32.static-g++ (https://github.com/mxe/mxe)
-  # QMAKE_HOST.arch doesn't seem to work
-  !contains(QMAKE_TARGET.arch, x86_64):QMAKE_LFLAGS += -Wl,--large-address-aware
+  # tested with MXE (https://github.com/mxe/mxe)
+  !contains(QMAKE_HOST.arch, x86_64):QMAKE_LFLAGS += -Wl,--large-address-aware
 }
 
 win32-msvc* {

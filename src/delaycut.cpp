@@ -38,6 +38,7 @@
 #include "dc_types.h"
 
 #include <cstdio>
+#include <cinttypes>
 
 #ifdef Q_OS_WIN
 #include "windows.h"
@@ -117,12 +118,12 @@ void DelayCut::Redirect_console()
 
     AllocConsole();
 
-    hCrtout=_open_osfhandle( (long) GetStdHandle(STD_OUTPUT_HANDLE), _O_TEXT );
+    hCrtout=_open_osfhandle( (intptr_t) GetStdHandle(STD_OUTPUT_HANDLE), _O_TEXT );
     hfout=_fdopen(hCrtout, "w");
     *stdout= *hfout;
     setvbuf(stdout,NULL, _IONBF,0);
 
-    hCrterr=_open_osfhandle( (long) GetStdHandle(STD_ERROR_HANDLE), _O_TEXT );
+    hCrterr=_open_osfhandle( (intptr_t) GetStdHandle(STD_ERROR_HANDLE), _O_TEXT );
     hferr=_fdopen(hCrterr, "w");
     *stderr= *hferr;
     setvbuf(stderr,NULL, _IONBF,0);
