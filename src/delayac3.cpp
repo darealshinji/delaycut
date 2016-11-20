@@ -998,7 +998,7 @@ void Delayac3::delaympa()
     QString csTime, csAux, csAux1;
     qint32 f_writeframe, nuerrors;
     qint64 n64skip;
-    qint32 syncword, iID, irate, padding_bit, private_bit;
+    quint32 syncword, iID, irate, padding_bit, private_bit;
     qint32 layer, protection_bit, rate, fsamp, unused;
     quint32 crc_cal1;
     bool bEndOfFile;
@@ -1694,6 +1694,7 @@ qint32 Delayac3::getac3info(FILE *in, FILEINFO *fileinfo)
 // BSI variables
     quint32 fscod, frmsizecod, bsmod, acmod, lfeon;
     quint32 compre, compr, cmixlev, surmixlev, crc1, bsid, dialnorm, dsurmod;
+    quint32 syncword;
 
 // Other vars
     quint32 nubytes, rate, BytesPerFrame, i;
@@ -1937,6 +1938,7 @@ qint32 Delayac3::getdtsinfo(FILE *in, FILEINFO *fileinfo)
     quint32 cpf;
     quint32 fsize, amode, sfreq, rate, lfeon;
     quint32 ftype, fshort, nblks, unused, fsample;
+    quint32 syncword;
 //    qreal fsample;
 
 #ifndef Q_OS_WIN
@@ -2114,6 +2116,7 @@ qint32 Delayac3::getmpainfo(FILE *in, FILEINFO *fileinfo)
     uchar caracter[MAXFRAMESIZE];
     quint32 rate, fsamp, layer, protection_bit;
     quint32 mode = 0;
+    quint32 syncword, iID, padding_bit, private_bit;
 //  quint32 mode_extension, copyright, original, emphasis;
 //  quint32 crc_check;
 #ifndef Q_OS_WIN
