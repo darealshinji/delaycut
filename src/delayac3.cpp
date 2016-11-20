@@ -82,7 +82,7 @@ void Delayac3::delayeac3()
 {
     bool endOfFile, crcError;
     uchar character[MAXFRAMESIZE];
-//  quint32 syncwordn;
+    quint32 syncwordn;
     quint32 fscodn, frmsizen, acmodn, cal_crc1;
     qint32 iBytesPerFramen, iBytesPerFramePrev, crc;
     qint64 i64, i64StartFrame, i64EndFrame, i64nuframes, i64frameswritten,i64TotalFrames, i64nubytes, n64skip;
@@ -223,7 +223,7 @@ void Delayac3::delayeac3()
             {
 
 // Some consistence checks
-//              syncwordn=getbits (16, character);
+                syncwordn=getbits (16, character);
                           getbits (2,  character);
                           getbits (3,  character);
                 frmsizen= getbits (11, character);
@@ -498,7 +498,7 @@ void Delayac3::delayac3()
     qint64 i64nubytes;
     qreal dFrameduration;
     qint32 iBytesPerFramen, iBytesPerFramePrev;
-//  quint32 syncwordn, crc1n, bsidn;
+    quint32 syncwordn, crc1n, bsidn;
     quint32 iFrmsizecodn;
     quint32 fscodn, bsmodn, acmodn;
     QString csTime, csAux, csAux1;
@@ -649,11 +649,11 @@ void Delayac3::delayac3()
             {
 
 // Some consistence checks
-//              syncwordn=   getbits (16, caracter);
-//              crc1n=       getbits (16, caracter);
+                syncwordn=   getbits (16, caracter);
+                crc1n=       getbits (16, caracter);
                 fscodn=      getbits (2, caracter);
                 iFrmsizecodn=getbits (6, caracter);
-//              bsidn=       getbits (5, caracter);
+                bsidn=       getbits (5, caracter);
                 bsmodn=      getbits (3, caracter);
                 acmodn=      getbits (3, caracter);
                 if ((iFrmsizecodn >> 1) != (fileInfo->frmsizecod >>1) ||
@@ -783,7 +783,7 @@ void Delayac3::delaydts()
     qint32 iBytesPerFramen, iBytesPerFramePrev;
     QString csTime, csAux, csAux1;
     qint32 f_writeframe, nuerrors;
-    quint32 amode, sfreq;
+    quint32 unused, amode, sfreq;
     qint32 rate;
     qint64 n64skip;
     bool bEndOfFile;
@@ -914,6 +914,12 @@ void Delayac3::delaydts()
                 nblks=      getbits (7, caracter);
                 fsize=      getbits (14,caracter);
 */
+                unused=     getbits (32, caracter);
+                unused=     getbits (1, caracter);
+                unused=     getbits (5, caracter);
+                unused=     getbits (1, caracter);
+                unused=     getbits (7, caracter);
+                unused=     getbits (14,caracter);
                 amode=      getbits (6, caracter);
                 sfreq=      getbits (4, caracter);
                 rate=       getbits (5, caracter);
@@ -983,7 +989,6 @@ void Delayac3::writedtsframe(FILE *fileout, uchar *p_frame)
     fwrite(p_frame,sizeof (uchar), BytesPerFrame, fileout);
 }
 
-qint32 syncword, iID, irate, padding_bit, private_bit;
 void Delayac3::delaympa()
 {
     qint64 i64, i64StartFrame, i64EndFrame, i64nuframes, i64frameswritten, i64TotalFrames;
@@ -993,6 +998,7 @@ void Delayac3::delaympa()
     QString csTime, csAux, csAux1;
     qint32 f_writeframe, nuerrors;
     qint64 n64skip;
+    qint32 syncword, iID, irate, padding_bit, private_bit;
     qint32 layer, protection_bit, rate, fsamp, unused;
     quint32 crc_cal1;
     bool bEndOfFile;
@@ -2163,8 +2169,8 @@ qint32 Delayac3::getmpainfo(FILE *in, FILEINFO *fileinfo)
     fsamp=         getbits (2, caracter);
     padding_bit=   getbits (1, caracter);
     private_bit=   getbits (1, caracter);
-/*  mode=          getbits (2, caracter);
-    mode_extension=getbits (2, caracter);
+    mode=          getbits (2, caracter);
+/*  mode_extension=getbits (2, caracter);
     copyright=     getbits (1, caracter);
     original=      getbits (1, caracter);
     emphasis=      getbits (2, caracter);
@@ -2186,20 +2192,17 @@ qint32 Delayac3::getmpainfo(FILE *in, FILEINFO *fileinfo)
 //    if (protection_bit==0)
 //        crc_check=getbits (16, caracter);
 
-    if		(layer==1) layer=3;
+    if	    (layer==1) layer=3;
     else if (layer==3) layer=1;
 
-    if (layer==3)
-        rate=layerIIIrate[rate];
-    else if (layer==2)
-        rate=layerIIrate[rate];
-    else if (layer==1)
-        rate=layerIrate[rate];
-    else rate=0;
+    if      (layer==3) rate=layerIIIrate[rate];
+    else if (layer==2) rate=layerIIrate[rate];
+    else if (layer==1) rate=layerIrate[rate];
+    else               rate=0;
 
     if (rate<8) rate=8;
 
-    if (fsamp==0)      fsamp=44100;
+    if      (fsamp==0) fsamp=44100;
     else if (fsamp==1) fsamp=48000;
     else if (fsamp==2) fsamp=32000;
     else               fsamp=44100;
