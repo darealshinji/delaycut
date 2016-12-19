@@ -30,6 +30,7 @@ win32 {
 }
 
 !win32 {
+  QMAKE_CXXFLAGS += -std=c++11 -Wno-unused-but-set-variable -Wno-unused-variable
   RESOURCES  += src/delaycut_png.qrc
   target.path = /usr/bin
   INSTALLS   += target

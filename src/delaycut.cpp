@@ -610,8 +610,13 @@ void DelayCut::on_inputBrowseButton_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Select input file"),
                                                     lastOpenDir == "" ? QDir::homePath() : lastOpenDir,
-                                                    tr("All supported files (*.wav *.mpa *.ac3 *.eac3 *.ddp *.ec3 *.dd+ *.dts);;wave files (*.wav);;"
-                                                       "mpeg1 files (*.mpa);;dolby files (*.ac3);;eac3 files (*.eac3 *.ddp *.ec3 *.dd+);;dts files (*.dts);;All Files (*.*)")
+                                                    tr("All supported files (*.wav *.mpa *.ac3 *.eac3 *.ddp *.ec3 *.dd+ *.dts);;"
+                                                       "wave files (*.wav);;"
+                                                       "mpeg1 files (*.mpa);;"
+                                                       "dolby files (*.ac3);;"
+                                                       "eac3 files (*.eac3 *.ddp *.ec3 *.dd+);;"
+                                                       "dts files (*.dts);;"
+                                                       "All Files (*.*)")
                                                     );
 
     if (fileName.isNull() || fileName.isEmpty()) return;
@@ -630,7 +635,13 @@ void DelayCut::on_outputBrowseButton_clicked()
 {
     QString fileName = QFileDialog::getSaveFileName(this, tr("Select output file"),
                                                     lastSaveDir == "" ? lastOpenDir : lastSaveDir,
-                                                    tr("ac3 files (*.ac3);;eac3 files (*.eac3 *.ddp *.ec3 *.dd+);;dts files (*.dts)")
+                                                    tr("All supported files (*.wav *.mpa *.ac3 *.eac3 *.ddp *.ec3 *.dd+ *.dts);;"
+                                                       "wave files (*.wav);;"
+                                                       "mpeg1 files (*.mpa);;"
+                                                       "dolby files (*.ac3);;"
+                                                       "eac3 files (*.eac3 *.ddp *.ec3 *.dd+);;"
+                                                       "dts files (*.dts);;"
+                                                       "All Files (*.*)")
                                                     );
     if (fileName.isNull() || fileName.isEmpty()) return;
 

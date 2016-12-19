@@ -16,12 +16,6 @@
   <property name="windowTitle">
    <string>delaycut v1.4.3.8</string>
   </property>
-  <!--
-  <property name="windowIcon">
-   <iconset resource="delaycut.qrc">
-    <normaloff>:/new/resources/delaycut.ico</normaloff>:/new/resources/delaycut.ico</iconset>
-  </property>
-  -->
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="3,1">
     <item>
@@ -52,7 +46,11 @@
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
-          <widget class="DragDropLineEdit" name="outputFileLineEdit"/>
+          <widget class="DragDropLineEdit" name="outputFileLineEdit">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QPushButton" name="outputBrowseButton">
@@ -409,7 +407,7 @@
               <bool>false</bool>
              </property>
              <property name="text">
-              <string>ABORT</string>
+              <string>Abort</string>
              </property>
             </widget>
            </item>
@@ -438,11 +436,8 @@
           <property name="enabled">
            <bool>false</bool>
           </property>
-          <property name="toolTip">
-           <string>Use this to generate the file</string>
-          </property>
           <property name="text">
-           <string>PROCESS</string>
+           <string>Process</string>
           </property>
          </widget>
         </item>
@@ -461,9 +456,6 @@
         </item>
         <item>
          <widget class="QPushButton" name="quitButton">
-          <property name="toolTip">
-           <string>Use this for...quitting</string>
-          </property>
           <property name="text">
            <string>Quit</string>
           </property>
@@ -500,10 +492,5 @@
    <header location="global">dragdroplineedit.h</header>
   </customwidget>
  </customwidgets>
- <!--
- <resources>
-  <include location="delaycut.qrc"/>
- </resources>
- -->
  <connections/>
 </ui>
