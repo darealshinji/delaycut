@@ -622,7 +622,6 @@ void DelayCut::on_inputBrowseButton_clicked()
     if (fileName.isNull() || fileName.isEmpty()) return;
 
     inFileName = QDir::toNativeSeparators(fileName);
-    ui->inputFileLineEdit->setText("");
     ui->inputFileLineEdit->setText(inFileName);
     if (ui->originalLengthCheckBox->isChecked())
     {
@@ -652,7 +651,6 @@ void DelayCut::on_outputBrowseButton_clicked()
 
 void DelayCut::onFileDropped(QString fileName)
 {
-    ui->inputFileLineEdit->setText("");
     inFileName = QDir::toNativeSeparators(fileName);
     ui->inputFileLineEdit->setText(inFileName);
     if (ui->originalLengthCheckBox->isChecked())
@@ -668,6 +666,7 @@ void DelayCut::on_inputFileLineEdit_textChanged(const QString &fileName)
     {
         inFileName = "";
         outFileName = "";
+        SetOutputPath(outFileName);
         Reset();
         return;
     }
@@ -678,6 +677,7 @@ void DelayCut::on_inputFileLineEdit_textChanged(const QString &fileName)
     lastOpenDir = QFileInfo(inFileName).absolutePath();
     QString extension = QFileInfo(inFileName).suffix();
     outFileName = inFileName.mid(0, inFileName.lastIndexOf(".")) + "_fixed." + extension;
+    ui->outputFileLineEdit->setEnabled(true);
     SetOutputPath(outFileName);
     GetInputFileInfo();
 
@@ -730,6 +730,14 @@ void DelayCut::on_inputFileLineEdit_textChanged(const QString &fileName)
     CalculateTarget();
 }
 
+void DelayCut::on_outputFileLineEdit_textChanged(const QString &fileName)
+{
+    ui->outputFileLineEdit->setEnabled(true);
+    outFileName = fileName;
+    GetInputFileInfo();
+    CalculateTarget();
+}
+
 void DelayCut::Reset()
 {
     ui->outputBrowseButton->setEnabled(false);
@@ -740,10 +748,12 @@ void DelayCut::Reset()
     ui->silenceRadioButton->setEnabled(false);
     ui->skipRadioButton->setEnabled(false);
     ui->processButton->setEnabled(false);
+    ui->outputFileLineEdit->setEnabled(false);
 }
 
 void DelayCut::SetOutputPath(QString fileName)
 {
+    if (fileName.isNull() || fileName.isEmpty()) return;
     ui->outputFileLineEdit->setText(QDir::toNativeSeparators(fileName));
     ui->outputFileLineEdit->setCursorPosition(0);
 }
