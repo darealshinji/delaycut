@@ -75,6 +75,7 @@ DelayCut::DelayCut(QWidget *parent) :
 #else
     this->setWindowIcon(QIcon(":/delaycut.png"));
 #endif
+    this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), qApp->desktop()->availableGeometry()));
 
     delayValidator = new QIntValidator(-9999999, 99999999, this);
     cutValidator = new QIntValidator(0, 99999999, this);

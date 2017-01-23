@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>521</width>
-    <height>606</height>
+    <width>680</width>
+    <height>694</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -492,5 +492,6 @@
    <header location="global">dragdroplineedit.h</header>
   </customwidget>
  </customwidgets>
+ <resources/>
  <connections/>
 </ui>
