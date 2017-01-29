@@ -5,7 +5,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
   DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x000000
 }
 
-CONFIG     += qt console
+CONFIG     += qt console c++11
 TARGET      = delaycut
 TEMPLATE    = app
 
@@ -30,13 +30,15 @@ win32 {
 }
 
 !win32 {
-  QMAKE_CXXFLAGS += -std=c++11 -Wno-unused-but-set-variable -Wno-unused-variable
+  !greaterThan(QT_MAJOR_VERSION, 4):QMAKE_CXXFLAGS += -std=c++11
+  QMAKE_CXXFLAGS += -Wno-unused-but-set-variable -Wno-unused-variable
   RESOURCES  += src/delaycut_png.qrc
   target.path = /usr/bin
   INSTALLS   += target
 }
 
-win32-g++ {
+win32-g++* {
+  !greaterThan(QT_MAJOR_VERSION, 4):QMAKE_CXXFLAGS += -std=c++11
   QMAKE_CXXFLAGS += -Wno-unused-but-set-variable
 
   # tested with MXE (https://github.com/mxe/mxe)
@@ -44,9 +46,8 @@ win32-g++ {
 }
 
 win32-msvc* {
-  CONFIG += c++11 # C++11 support
   QMAKE_CXXFLAGS += /bigobj # allow big objects
-  !contains(QMAKE_HOST.arch, x86_64):QMAKE_LFLAGS += /LARGEADDRESSAWARE #
+  !contains(QMAKE_HOST.arch, x86_64):QMAKE_LFLAGS += /LARGEADDRESSAWARE
   QMAKE_CFLAGS_RELEASE += -WX
   QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO += -WX
 

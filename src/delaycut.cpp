@@ -23,6 +23,7 @@
 #include "delaycut.h"
 #include "ui_delaycut.h"
 
+#include <QDesktopWidget>
 #include <QIntValidator>
 #include <QDoubleValidator>
 #include <QFileDialog>
