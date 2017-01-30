@@ -1144,6 +1144,15 @@ void DelayCut::on_processButton_clicked()
         QMessageBox::warning(this, "Error", "Fill output file path!");
         return;
     }
+#ifdef Q_OS_WIN
+    if (outFileName.toLower() == inFileName.toLower())
+#else
+    if (outFileName == inFileName)
+#endif
+    {
+        QMessageBox::warning(this, "Error", "Output and input filenames are identical!");
+        return;
+    }
     if (endCut < startCut && (endCut != 0))
     {
         QMessageBox::warning(this, "Error", "Start cut value is larger than ending cut value.");
