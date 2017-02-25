@@ -25,14 +25,14 @@ HEADERS    += src/delaycut.h \
 FORMS      += src/delaycut.ui
 
 win32 {
-  RESOURCES  += src/delaycut_ico.qrc
+  RESOURCES  += src/icon_ico.qrc
   RC_FILE     = src/delaycut.rc
 }
 
 !win32 {
   !greaterThan(QT_MAJOR_VERSION, 4):QMAKE_CXXFLAGS += -std=c++11
   QMAKE_CXXFLAGS += -Wno-unused-but-set-variable -Wno-unused-variable
-  RESOURCES  += src/delaycut_png.qrc
+  RESOURCES  += src/icon_png.qrc
   target.path = /usr/bin
   INSTALLS   += target
 }
@@ -62,8 +62,8 @@ win32-msvc* {
   }
 }
 
-QMAKE_CLEAN += qrc_delaycut_ico.cpp \
-               qrc_delaycut_ico.o \
-               qrc_delaycut_png.cpp \
-               qrc_delaycut_png.o
+QMAKE_CLEAN += qrc_icon_ico.cpp \
+               qrc_dicon_ico.o \
+               qrc_icon_png.cpp \
+               qrc_icon_png.o
 

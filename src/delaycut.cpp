@@ -72,9 +72,9 @@ DelayCut::DelayCut(QWidget *parent) :
     fileInfo = new FILEINFO;
     this->setWindowTitle(versionString);
 #ifdef Q_OS_WIN
-    this->setWindowIcon(QIcon(":/delaycut.ico"));
+    this->setWindowIcon(QIcon(":/icon.ico"));
 #else
-    this->setWindowIcon(QIcon(":/delaycut.png"));
+    this->setWindowIcon(QIcon(":/icon.png"));
 #endif
     this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), qApp->desktop()->availableGeometry()));
 
