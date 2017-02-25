@@ -1,7 +1,7 @@
 /*  Copyright (C) 2004 by jsoto
     2007-09-11 E-AC3 support added by www.madshi.net
     Copyright (C) 2010 by Adam Thomas-Murphy
-    Copyright (C) 2016 by djcj <djcj@gmx.de>
+    Copyright (C) 2016-2017 by djcj <djcj@gmx.de>
 
     This file is part of DelayCut.
 
@@ -24,7 +24,11 @@
 
 #include <QMainWindow>
 
-#define VERSION "1.4.3.8"
+/* Reminder:
+ * On a new release, don't forget to bump the version
+ * in delaycut.ui and delaycut.1 too and update the ChangeLog.
+ */
+#define VERSION "1.4.3.9"
 
 namespace Ui {
     class DelayCut;

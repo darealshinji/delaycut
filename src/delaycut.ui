@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>delaycut v1.4.3.8</string>
+   <string>delaycut v1.4.3.9</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="3,1">
