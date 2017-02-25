@@ -1,3 +1,0 @@
-?package(delaycut):needs="X11" section="Applications/Sound" \
-  title="DelayCut" command="/usr/bin/delaycut" \
-  icon="/usr/share/pixmaps/delaycut.xpm"
