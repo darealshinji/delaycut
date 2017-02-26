@@ -157,10 +157,6 @@ void DelayCut::printHelp()
     fprintf(stdout, "%s\n", "-o <string>:           specify output file");
     fprintf(stdout, "%s\n", "-i <string>:           specify inputfile");
     fprintf(stdout, "%s\n", "");
-    fprintf(stdout, "%s\n", "Return values");
-    fprintf(stdout, "%s\n", "0: Success");
-    fprintf(stdout, "%s\n", "1: Something went wrong.");
-    fprintf(stdout, "%s\n", "");
     fprintf(stdout, "%s\n", "Examples:");
     fprintf(stdout, "%s\n", "Get info: Log file will be myfile_log.txt");
     fprintf(stdout, "%s\n", "    delaycut -info -i myfile.ac3");
