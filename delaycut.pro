@@ -63,7 +63,7 @@ win32-msvc* {
 }
 
 QMAKE_CLEAN += qrc_icon_ico.cpp \
-               qrc_dicon_ico.o \
+               qrc_icon_ico.o \
                qrc_icon_png.cpp \
                qrc_icon_png.o
 
