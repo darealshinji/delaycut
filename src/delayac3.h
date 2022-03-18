@@ -49,7 +49,7 @@ public:
     qint32 geteac3info (FILE *in, FILEINFO *fileinfo);
     qint32 getdtsinfo(FILE *in, FILEINFO *fileinfo);
     qint32 getmpainfo(FILE *in, FILEINFO *fileinfo);
-    qint32 gettargetinfo(FILEINFO *fileinfo, qreal startDelay, qreal endDelay, qreal startCut, qreal endCut);
+    qint32 gettargetinfo(FILEINFO *fileinfo, qreal startDelay, qreal endDelay, qreal startCut, qreal endCut, qreal startSilence, qreal lengthSilence);
     qint64 round(double value);
 
 signals:

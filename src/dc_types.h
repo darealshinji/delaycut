@@ -55,6 +55,8 @@ struct FILEINFO {
     QString csTimeLengthEst;
     qint64 i64StartFrame;
     qint64 i64EndFrame;
+    qint64 i64StartSilenceFrame;
+    qint64 i64LengthSilenceFrame;
     qint64 i64frameinfo;
     qreal dNotFixedDelay;
 };

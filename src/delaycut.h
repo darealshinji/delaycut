@@ -68,6 +68,8 @@ private slots:
     void on_endCuttingLineEdit_textEdited(const QString &endCut);
     void on_startDelayLineEdit_textEdited(const QString &startDelay);
     void on_endDelayLineEdit_textEdited(const QString &endDelay);
+    void on_startSilenceLineEdit_textEdited(const QString &startSilence);
+    void on_lengthSilenceLineEdit_textEdited(const QString &lengthSilence);
     void on_cutFileCheckBox_toggled(bool checked);
     void on_processButton_clicked();
     void onUpdateProgress(qint32);
@@ -94,7 +96,7 @@ private:
     QString currentInputMode;
     int tabWidth, sizeOfSpace;
     QFontMetrics *currentFont;
-    qreal startCut, endCut, startDelay, endDelay, fps;
+    qreal startCut, endCut, startDelay, endDelay, startSilence, lengthSilence, fps;
     QString inFileName, outFileName, logFileName;
     QThread *workerThread;
     QString versionString;

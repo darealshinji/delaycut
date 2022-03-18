@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 #include <cstdio>
 #include <math.h>
+#include <QTextStream>
 
 #define NUMREAD 8
 #define MAXBYTES_PER_FRAME 2*1280
@@ -137,6 +138,13 @@ void Delayac3::delayeac3()
         {
             csAux = QString("Processing %1 %").arg((int) ((i64 * 100) / i64nuframes), 2, 10, QChar('0'));
             printline(csAux, writeConsole);
+        }
+
+        if(i64 == fileInfo->i64StartSilenceFrame) {
+            for(qint64 i64Counter=0; i64Counter < fileInfo->i64LengthSilenceFrame; i64Counter++) {
+                i64frameswritten++;
+                writeeac3frame (outputFile, p_silence);
+            }
         }
 
         if (i64 < 0 || i64 >= i64TotalFrames)
@@ -493,7 +501,7 @@ qint32 Delayac3::readeac3frame(FILE *filein, uchar *p_frame)
 
 void Delayac3::delayac3()
 {
-    qint64 i64;
+    qint64 i64, i64c;
     qint64 i64StartFrame, i64EndFrame, i64nuframes, i64frameswritten,i64TotalFrames;
     qint64 i64nubytes;
     qreal dFrameduration;
@@ -564,6 +572,14 @@ void Delayac3::delayac3()
         {
             csAux = QString("Processing %1 %").arg((int)((i64*100)/i64nuframes), 2, 10, QChar('0'));
             printline(csAux, writeConsole);
+        }
+
+        if(i64 == fileInfo->i64StartSilenceFrame) {
+            printline("CI SIAMO!", true);
+            for(qint64 i64Counter=0; i64Counter < fileInfo->i64LengthSilenceFrame; i64Counter++) {
+                i64frameswritten++;
+                writeeac3frame (outputFile, p_silence);
+            }
         }
 
         if (i64 < 0 || i64 >= i64TotalFrames)
@@ -827,6 +843,13 @@ void Delayac3::delaydts()
             printline(csAux, writeConsole);
         }
 
+        if(i64 == fileInfo->i64StartSilenceFrame) {
+            for(qint64 i64Counter=0; i64Counter < fileInfo->i64LengthSilenceFrame; i64Counter++) {
+                i64frameswritten++;
+                writedtsframe(outputFile, p_silence);
+            }
+        }
+
         if (i64 < 0 || i64 >= i64TotalFrames)
         {
             f_writeframe=WF_SILENCE;
@@ -1063,6 +1086,13 @@ void Delayac3::delaympa()
         {
             csAux = QString("Processing %1 %").arg((int) ((i64 * 100) / i64nuframes), 2, 10, QChar('0'));
             printline(csAux, writeConsole);
+        }
+
+        if(i64 == fileInfo->i64StartSilenceFrame) {
+            for(qint64 i64Counter=0; i64Counter < fileInfo->i64LengthSilenceFrame; i64Counter++) {
+                i64frameswritten++;
+                writempaframe (outputFile, p_silence);
+            }
         }
 
         if (i64 < 0 || i64 >= i64TotalFrames)
@@ -1474,6 +1504,13 @@ void Delayac3::delaywav()
         {
             csAux = QString("Processing %1 %").arg((int)((i64 * 100) / i64nuframes), 2, 10, QChar('0'));
             printline(csAux, writeConsole);
+        }
+
+        if(i64 == fileInfo->i64StartSilenceFrame) {
+            for(qint64 i64Counter=0; i64Counter < fileInfo->i64LengthSilenceFrame; i64Counter++) {
+                i64frameswritten++;
+                writewavsample (outputFile, p_silence,iBytesPerFrame);
+            }
         }
 
         if (i64 < 0 || i64 >= i64TotalFrames)
@@ -2402,7 +2439,7 @@ qint32 Delayac3::readmpaframe (FILE *filein, uchar *p_frame)
     return nRead+nNumRead;
 }
 
-qint32 Delayac3::gettargetinfo(FILEINFO *fileinfo, qreal startDelay, qreal endDelay, qreal startCut, qreal endCut)
+qint32 Delayac3::gettargetinfo(FILEINFO *fileinfo, qreal startDelay, qreal endDelay, qreal startCut, qreal endCut, qreal startSilence, qreal lengthSilence)
 {
     qreal frameDuration, notFixedDelay;
     qint64 startFrame, endFrame;
@@ -2436,8 +2473,11 @@ qint32 Delayac3::gettargetinfo(FILEINFO *fileinfo, qreal startDelay, qreal endDe
     }
 
     fileinfo->i64EndFrame = endFrame;
+   
+    fileinfo->i64StartSilenceFrame = round(startSilence / frameDuration);
+    fileinfo->i64LengthSilenceFrame = round(lengthSilence / frameDuration);
 
-    estimatedTimeLength = (qint64)((endFrame - startFrame + 1) * frameDuration);
+    estimatedTimeLength = (qint64)((endFrame - startFrame + fileinfo->i64LengthSilenceFrame + 1) * frameDuration);
 
     notFixedDelay = (startDelay + (startFrame * frameDuration)) - (startCut * 1000.0);
 
