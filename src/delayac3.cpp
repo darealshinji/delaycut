@@ -88,7 +88,7 @@ void Delayac3::delayeac3()
     qint32 iBytesPerFramen, iBytesPerFramePrev, crc;
     qint64 i64, i64StartFrame, i64EndFrame, i64nuframes, i64frameswritten,i64TotalFrames, i64nubytes, n64skip;
     qreal dFrameduration, f_writeframe, nuerrors;
-    QString csTime, csAux, csAux1;
+    QString csAux, csAux1;
 
     if (fixCRC == "IGNORED")
     {
@@ -142,165 +142,165 @@ void Delayac3::delayeac3()
 
         if(i64 == fileInfo->i64StartSilenceFrame) {
             for(qint64 i64Counter=0; i64Counter < fileInfo->i64LengthSilenceFrame; i64Counter++) {
-                i64frameswritten++;
-                writeeac3frame (outputFile, p_silence);
+                for(quint32 iSubstreamNum=0; iSubstreamNum < fileInfo->iSubstreamsCount; iSubstreamNum++) {
+                    i64frameswritten++;
+                    writeeac3frame (outputFile, fileInfo->silence[iSubstreamNum]);
+                }
             }
         }
 
-        if (i64 < 0 || i64 >= i64TotalFrames)
-        {
-            f_writeframe = WF_SILENCE;
-        }
-        else
-        {
-            /////////////////////////////////////////////////////////
-            // Read & write frame by frame
-            //	 If EndFrames<0 stop before the end
-            /////////////////////////////////////////////////////////
-            iBytesPerFramePrev=(int)i64nubytes;
-
-            f_writeframe=WF_WRITE; //indicates write frame
-            i64nubytes=readeac3frame (inputFile, character);
-            if( i64nubytes <5)
+        for(quint32 iSubstreamNum=0; iSubstreamNum < fileInfo->iSubstreamsCount; iSubstreamNum++) {
+            if (i64 < 0 || i64 >= i64TotalFrames)
             {
-                endOfFile=true;
-                break;
-            }
-            iBytesPerFramen=(((character[2] & 7) << 8) + character[3] + 1) * 2;
-            csTime = QString("%1:%2:%3.%4")
-                    .arg((int) ((dFrameduration * i64) / 3600000), 2, 10, QChar('0'))
-                    .arg((((int) (dFrameduration * i64)) % 3600000) / 60000, 2, 10, QChar('0'))
-                    .arg((((int) (dFrameduration * i64)) % 60000) / 1000, 2, 10, QChar('0'))
-                    .arg((((int) (dFrameduration * i64)) % 1000), 3, 10, QChar('0'));
-
-            if ( character[0]!= 0x0B || character[1]!=0x77)
-            {
-                nuerrors++;
-                csAux = QString("Time %1; Frame#= %2. Unsynchronized frame...")
-                                .arg(csTime).arg(i64 + 1);
-// Try to find the next sync Word and continue...
-            // rewind nubytes (last frame), and if previous had error,
-                if (!crcError)
-                {
-                    n64skip=0;
-                    fseek(inputFile, (long)(-1*i64nubytes), SEEK_CUR);
-                }
-                else
-                {
-                    n64skip= -1*iBytesPerFramePrev+2;
-                    fseek(inputFile, (long)(-1*(i64nubytes+iBytesPerFramePrev-2)), SEEK_CUR);
-                }
-
-                character[0]=fgetc(inputFile);
-                character[1]=fgetc(inputFile);
-                while ((character[0]!= 0x0B || character[1]!=0x77 ) && !feof(inputFile) )
-                {
-                    character[0]= character[1];
-                    character[1]= fgetc(inputFile);
-                    n64skip++;
-                }
-                if (character[0]== 0x0B && character[1]==0x77)
-                {
-                    if (n64skip>0)
-                        csAux1 = QString("SKIPPED  %1 bytes. Found new synch word").arg(n64skip);
-                    else
-                        csAux1 = QString("REWINDED %1 bytes. Found new synch word").arg(-1 * n64skip);
-
-                    csAux+=csAux1;
-                    printlog(logFile, csAux, isCLI, writeConsole);
-            // rewind 2 bytes
-                    fseek(inputFile, -2L, SEEK_CUR);
-                    f_writeframe=WF_SKIP; // do not write this frame
-                }
-                else // nothing to do, reached end of file
-                {
-                    csAux+="NOT FIXED. Reached end of file ";
-                    printlog(logFile, csAux, isCLI, writeConsole);
-                    f_writeframe=WF_SKIP; // do not write this frame
-                    endOfFile=true;
-                }
-            }
-            else  if (i64nubytes < 12 || i64nubytes != iBytesPerFramen)
-            {
-                nuerrors++;
-                f_writeframe=WF_SKIP; // do not write this frame
-                csAux = QString("Time %1; Frame#= %2. Uncomplete frame...SKIPPED").arg(csTime).arg(i64 + 1);
-                printlog(logFile, csAux, isCLI, writeConsole);
+                f_writeframe = WF_SILENCE;
             }
             else
             {
+                /////////////////////////////////////////////////////////
+                // Read & write frame by frame
+                //	 If EndFrames<0 stop before the end
+                /////////////////////////////////////////////////////////
+                iBytesPerFramePrev=(int)i64nubytes;
 
-// Some consistence checks
-                syncwordn=getbits (16, character);
-                          getbits (2,  character);
-                          getbits (3,  character);
-                frmsizen= getbits (11, character);
-                fscodn=   getbits (2,  character);
-                          getbits (2,  character);
-                acmodn=   getbits (3,  character);
-
-                if ((frmsizen*2+2 != fileInfo->dBytesperframe) ||
-                    fscodn != fileInfo->fscod ||
-                    acmodn != fileInfo->acmod)
+                f_writeframe=WF_WRITE; //indicates write frame
+                i64nubytes=readeac3frame (inputFile, character);
+                if( i64nubytes <5)
                 {
-                    fileInfo->fscod=fscodn;
-                    fileInfo->dBytesperframe= frmsizen*2+2;
-                    fileInfo->acmod= acmodn;
-
-                    nuerrors++;
-                    csAux = QString("Time %1; Frame#= %2. Some basic parameters changed between Frame #%3 and this frame")
-                                    .arg(csTime).arg(i64 + 1).arg(fileInfo->i64frameinfo);
-                    printlog(logFile, csAux, isCLI, writeConsole);
-                    fileInfo->i64frameinfo=i64+1;
+                    endOfFile=true;
+                    break;
                 }
+                iBytesPerFramen=(((character[2] & 7) << 8) + character[3] + 1) * 2;
 
-// CRC calculation and fixing.
-
-                cal_crc1 = ac3_crc(character + 2, frmsizen*2+2 - 4, 0);
-
-                crcError=false;
-                if (character[frmsizen*2+2-2]!=(cal_crc1 >> 8) ||
-                    character[frmsizen*2+2-1]!=(cal_crc1 & 0xff) )
+                if ( character[0]!= 0x0B || character[1]!=0x77)
                 {
-                    crcError=true;
                     nuerrors++;
+                    QString csTime = compute_time_string(i64, dFrameduration);
+                    csAux = QString("Time %1; Frame#= %2. Unsynchronized frame...")
+                                    .arg(csTime).arg(i64 + 1);
+                // Try to find the next sync Word and continue...
+                // rewind nubytes (last frame), and if previous had error,
+                    if (!crcError)
                     {
-                        csAux = QString("Time %1; Frame#= %2.  Crc error %3: read = %4%5; calculated=%6%7")
-                                        .arg(csTime).arg(i64 + 1).arg(fixCRC)
-                                        .arg(character[((frmsizen * 2) + 2) - 2], 16, 2, QChar('0')).arg(character[((frmsizen * 2) + 2) - 1], 16, 2, QChar('0'))
-                                        .arg(cal_crc1 >> 8, 16, 2, QChar('0')).arg(cal_crc1 & 0xff, 16, 2, QChar('0'));
+                        n64skip=0;
+                        fseek(inputFile, (long)(-1*i64nubytes), SEEK_CUR);
+                    }
+                    else
+                    {
+                        n64skip= -1*iBytesPerFramePrev+2;
+                        fseek(inputFile, (long)(-1*(i64nubytes+iBytesPerFramePrev-2)), SEEK_CUR);
+                    }
+
+                    character[0]=fgetc(inputFile);
+                    character[1]=fgetc(inputFile);
+                    while ((character[0]!= 0x0B || character[1]!=0x77 ) && !feof(inputFile) )
+                    {
+                        character[0]= character[1];
+                        character[1]= fgetc(inputFile);
+                        n64skip++;
+                    }
+                    if (character[0]== 0x0B && character[1]==0x77)
+                    {
+                        if (n64skip>0)
+                            csAux1 = QString("SKIPPED  %1 bytes. Found new synch word").arg(n64skip);
+                        else
+                            csAux1 = QString("REWINDED %1 bytes. Found new synch word").arg(-1 * n64skip);
+
+                        csAux+=csAux1;
                         printlog(logFile, csAux, isCLI, writeConsole);
+                // rewind 2 bytes
+                        fseek(inputFile, -2L, SEEK_CUR);
+                        f_writeframe=WF_SKIP; // do not write this frame
                     }
-                    if (crc==CRC_FIX)
+                    else // nothing to do, reached end of file
                     {
-                        character[frmsizen*2+2-2]=(cal_crc1 >> 8);
-                        character[frmsizen*2+2-1]=cal_crc1 & 0xff;
+                        csAux+="NOT FIXED. Reached end of file ";
+                        printlog(logFile, csAux, isCLI, writeConsole);
+                        f_writeframe=WF_SKIP; // do not write this frame
+                        endOfFile=true;
                     }
-                    else if (crc==CRC_SKIP) f_writeframe=WF_SKIP;
-                    else if (crc==CRC_SILENCE) f_writeframe=WF_SILENCE;
+                }
+                else  if (i64nubytes < 12 || i64nubytes != iBytesPerFramen)
+                {
+                    nuerrors++;
+                    f_writeframe=WF_SKIP; // do not write this frame
+                    QString csTime = compute_time_string(i64, dFrameduration);
+                    csAux = QString("Time %1; Frame#= %2. Uncomplete frame...SKIPPED").arg(csTime).arg(i64 + 1);
+                    printlog(logFile, csAux, isCLI, writeConsole);
+                }
+                else
+                {
+                    syncwordn=getbits (16, character);
+                              getbits (2,  character);
+                              getbits (3,  character);
+                    frmsizen= getbits (11, character)*2+2;
+                    fscodn=   getbits (2,  character);
+                              getbits (2,  character);
+                    acmodn=   getbits (3,  character);
+
+                    if(iSubstreamNum == 0) {
+                        // Some consistence checks
+                        if (fscodn != fileInfo->fscod ||
+                            acmodn != fileInfo->acmod)
+                        {
+                            nuerrors++;
+                            QString csTime = compute_time_string(i64, dFrameduration);
+                            csAux = QString("Time %1; Frame# %2. Some basic parameters changed between Frame# %3 and this frame. Frame# %2: (bytesPerFrame: %4, fsCod: %5, acMod: %6), Frame# %3: (bytesPerFrame: %7, fsCod: %8, acMod: %9)")
+                                            .arg(csTime).arg(i64 + 1).arg(fileInfo->i64frameinfo).arg(frmsizen).arg(fscodn).arg(acmodn).arg(fileInfo->dBytesperframe).arg(fileInfo->fscod).arg(fileInfo->acmod);
+                            printlog(logFile, csAux, isCLI, writeConsole);
+
+                            fileInfo->fscod=fscodn;
+                            fileInfo->acmod= acmodn;
+                            fileInfo->i64frameinfo=i64+1;
+                        }
+                    }
+    
+                    // CRC calculation and fixing.
+                    cal_crc1 = ac3_crc(character + 2, frmsizen - 4, 0);
+
+                    crcError=false;
+                    if (character[frmsizen-2]!=(cal_crc1 >> 8) ||
+                        character[frmsizen-1]!=(cal_crc1 & 0xff) )
+                    {
+                        crcError=true;
+                        nuerrors++;
+                        {
+                            QString csTime = compute_time_string(i64, dFrameduration);
+                            csAux = QString("Time %1; Frame#= %2.  Crc error %3: read = %4%5; calculated=%6%7")
+                                            .arg(csTime).arg(i64 + 1).arg(fixCRC)
+                                            .arg(character[frmsizen - 2], 16, 2, QChar('0')).arg(character[frmsizen - 1], 16, 2, QChar('0'))
+                                            .arg(cal_crc1 >> 8, 16, 2, QChar('0')).arg(cal_crc1 & 0xff, 16, 2, QChar('0'));
+                            printlog(logFile, csAux, isCLI, writeConsole);
+                        }
+                        if (crc==CRC_FIX)
+                        {
+                            character[frmsizen-2]=(cal_crc1 >> 8);
+                            character[frmsizen-1]=cal_crc1 & 0xff;
+                        }
+                        else if (crc==CRC_SKIP) f_writeframe=WF_SKIP;
+                        else if (crc==CRC_SILENCE) f_writeframe=WF_SILENCE;
+                    }
                 }
             }
-        }
 
 
-        //	Write frame
-        if (f_writeframe==WF_WRITE)
-        {
-            i64frameswritten++;
-            writeeac3frame (outputFile, character);
-        }
-        else if (f_writeframe==WF_SILENCE)
-        {
-            i64frameswritten++;
-            writeeac3frame (outputFile, p_silence);
-        }
+            //	Write frame
+            if (f_writeframe==WF_WRITE)
+            {
+                i64frameswritten++;
+                writeeac3frame (outputFile, character);
+            }
+            else if (f_writeframe==WF_SILENCE)
+            {
+                i64frameswritten++;
+                writeeac3frame (outputFile, fileInfo->silence[iSubstreamNum]);
+            }
 
-        if (!tooManyErrors && nuerrors > MAXLOGERRORS)
-        {
-            printlog(logFile, "Too Many Errors. Stop Logging.", isCLI, writeConsole);
-            tooManyErrors=true;
+            if (!tooManyErrors && nuerrors > MAXLOGERRORS)
+            {
+                printlog(logFile, "Too Many Errors. Stop Logging.", isCLI, writeConsole);
+                tooManyErrors=true;
+            }
         }
-
     }
     tooManyErrors=false;
     csAux = QString("Number of written frames = %1").arg(i64frameswritten);
@@ -324,152 +324,278 @@ void Delayac3::writeeac3frame(FILE *fileout, uchar *p_frame)
     quint32 nubytes;
 
     nubytes = (((p_frame[2] & 7) << 8) + p_frame[3] + 1) * 2;
+    if(nubytes > MAXFRAMESIZE)
+        nubytes = MAXFRAMESIZE;
 
     fwrite(p_frame,sizeof(uchar), nubytes, fileout);
 }
 
-qint32 Delayac3::geteac3info (FILE *in, FILEINFO *fileinfo)
+qint32 Delayac3::getac3info (FILE *in, FILEINFO *fileinfo, bool eac3)
 {
-// BSI variables
+    uchar frame[MAXFRAMESIZE];
 
-    quint32 syncword, strmtyp, substreamid, frmsize, bsid, dialnorm, compre, compr;
-    quint32 fscod, fscod2, numblckscod, numblcks;
-    quint32 lfeon, acmod;
-
-// Other vars
-    quint32 nubytes,rate, BytesPerFrame, i;
-    char mode[40];
-#ifndef Q_OS_WIN
-    struct stat64 statbuf;
-#else
-    struct _stati64 statbuf;
-#endif
-    qreal fsample, FrameDuration, FramesPerSecond;
-    qint64 nuframes, TimeLengthIni, rest;
-    QString csRet, csAux;
-    uchar caracter[MAXFRAMESIZE];
-
-// init ac3_crc
-// ac3_crc_init(); Done in Initinstance
+    // init ac3_crc
+    // ac3_crc_init(); Done in Initinstance
 
     fseek(in, (long)0, SEEK_SET);
 
-// Read first frame
-    nubytes=readeac3frame (in, caracter);
-    BytesPerFrame = (((caracter[2] & 7) << 8) + caracter[3] + 1) * 2;
-    while (( caracter[0]!= 0x0B || caracter[1]!=0x77 ||
-            nubytes < 12 || nubytes != BytesPerFrame) && !feof(in))
-    {
-// Try to find the next sync Word and continue...
-            // rewind nubytes (last frame)
-        fseek(in, (long)(-1*nubytes), SEEK_CUR);
-        caracter[0]=fgetc(in);
-        caracter[1]=fgetc(in);
-        while ((caracter[0]!= 0x0B || caracter[1]!=0x77) && !feof(in) )
-        {
-            caracter[0]= caracter[1];
-            caracter[1]= fgetc(in);
+    quint32 independentSubstreamsCount=0, substreamsCount=0;
+    quint32 nubytesTotal=0, rateTotal=0, BytesPerFrameTotal=0;
+
+    // Read first frames to detect substreams
+    while(eac3 || substreamsCount < 1) {        
+        quint32 nubytes, BytesPerFrame, frmsizecod=0;
+        if(eac3) {
+            nubytes = readeac3frame (in, frame);
+            BytesPerFrame = (((frame[2] & 7) << 8) + frame[3] + 1) * 2;
+        } else {
+            nubytes = readac3frame (in, frame);
+            frmsizecod=frame[4];
+            BytesPerFrame = FrameSize_ac3[frmsizecod]*2;
         }
-        if (caracter[0]== 0x0B && caracter[1]==0x77)
+        
+        while (( frame[0]!= 0x0B || frame[1]!=0x77 ||
+                nubytes < 12 || nubytes != BytesPerFrame) && !feof(in))
         {
-            // rewind 2 bytes
-            fseek(in, -2L, SEEK_CUR);
-            nubytes=readeac3frame (in, caracter);
-            BytesPerFrame = (((caracter[2] & 7) << 8) + caracter[3] + 1) * 2;
+    // Try to find the next sync Word and continue...
+                // rewind nubytes (last frame)
+            fseek(in, (long)(-1*nubytes), SEEK_CUR);
+            frame[0]=fgetc(in);
+            frame[1]=fgetc(in);
+            while ((frame[0]!= 0x0B || frame[1]!=0x77) && !feof(in) )
+            {
+                frame[0]= frame[1];
+                frame[1]= fgetc(in);
+            }
+            if (frame[0]== 0x0B && frame[1]==0x77)
+            {
+                // rewind 2 bytes
+                fseek(in, -2L, SEEK_CUR);
+                if(eac3) {
+                    nubytes = readeac3frame (in, frame);
+                    BytesPerFrame = (((frame[2] & 7) << 8) + frame[3] + 1) * 2;
+                } else {
+                    nubytes = readac3frame (in, frame);
+                    frmsizecod=frame[4];
+                    BytesPerFrame = FrameSize_ac3[frmsizecod]*2;
+                }
+            }
         }
+
+        if (nubytes <12 || frame[0]!= 0x0B || frame[1]!=0x77)
+            return -1;
+
+        quint32 syncword=   getbits (16, frame);
+        quint32 acmod, lfeon, fscod;
+        qreal fsample;
+        if(eac3) {
+            quint32 strmtyp=    getbits (2,  frame);
+            quint32 substreamid=getbits (3,  frame);
+            
+            if(strmtyp == 0) {
+                if(substreamid < independentSubstreamsCount)
+                    break; // we already cycled over all available substreams
+            
+                independentSubstreamsCount++;
+            }
+            
+            // Retain metadata only for the first substream
+            quint32 frmsize=    getbits (11, frame);
+            fscod=      getbits (2,  frame);
+            quint32 fscod2=     getbits (2,  frame);
+            quint32 numblckscod=fscod2;
+            acmod=      getbits (3,  frame);
+            lfeon=      getbits (1,  frame);
+            quint32 bsid=       getbits (5,  frame);
+            quint32 dialnorm=   getbits (5,  frame);
+            quint32 compre=     getbits (1,  frame);
+            quint32 compr=0;
+            if (compre) 
+                compr=getbits(8, frame);
+
+            switch(fscod) {
+                case 0:
+                    fsample=48.0;
+                    break;
+                case 1:
+                    fsample=44.1;
+                    break;
+                case 2:
+                    fsample=32.0;
+                    break;
+                default:
+                    numblckscod = 3;
+                    switch(fscod2) {
+                        case 0:
+                            fsample=24.0;
+                            break;
+                        case 1:
+                            fsample=22.05;
+                            break;
+                        case 2:
+                            fsample=16.0;
+                            break;
+                        default:
+                            fsample=0.0;
+                    }
+            }
+
+            quint32 numblcks=1;
+            switch(numblckscod) {
+                case 0:
+                    numblcks=1;
+                    break;
+                case 1:
+                    numblcks=2;
+                    break;
+                case 2:
+                    numblcks=3;
+                    break;
+                default:
+                    numblcks=6;
+            }
+
+            BytesPerFrameTotal += BytesPerFrame;
+            rateTotal += (BytesPerFrame * 8 * (750 / numblcks)) / 4000;
+            
+            fileinfo->type="eac3";
+        }
+        else { // NOT enhanced AC3
+            quint32 crc1=      getbits (16, frame);
+            fscod=     getbits (2,  frame);
+            quint32 frmsizecod=getbits (6,  frame);
+            quint32 bsid=      getbits (5,  frame);
+            quint32 bsmod=     getbits (3,  frame);
+            acmod=     getbits (3,  frame);
+            quint32 cmixlev=0;
+            if ((acmod & 0x01) && (acmod != 0x01)) 
+                cmixlev=getbits(2, frame);
+            quint32 surmixlev=0;
+            if (acmod & 0x4)
+                surmixlev=getbits(2, frame);
+            quint32 dsurmod=0;
+            if (acmod == 0x2)
+                dsurmod=getbits(2, frame);
+            lfeon=     getbits(1, frame);
+            quint32 dialnorm=  getbits(5, frame);
+            quint32 compre=    getbits(1, frame);
+            quint32 compr=0;
+            if (compre) 
+                compr=getbits(8, frame);
+
+            switch(fscod) {
+                case 0:
+                    fsample=48.0;
+                    break;
+                case 1:
+                    fsample=44.1;
+                    break;
+                case 2:
+                    fsample=32.0;
+                    break;
+                default:
+                    fsample=0.0;
+            }
+            
+            fileinfo->bsmod=bsmod;
+            fileinfo->frmsizecod=frmsizecod;
+
+            BytesPerFrameTotal += FrameSize_ac3[frmsizecod + fscod*64]*2;
+            rateTotal += bitrate[frmsizecod];
+
+            fileinfo->bsmod=bsmod;
+            fileinfo->frmsizecod=frmsizecod;
+            fileinfo->type="ac3";
+        }
+
+        substreamsCount++;
+        
+        /////////////////////////////////////////////////////////////////////////////
+        // Fill silence frame, If acmod or bitrate is not included, use first frame
+        /////////////////////////////////////////////////////////////////////////////
+        for (quint32 i=0; i<nubytes; i++)
+            fileinfo->silence[substreamsCount-1][i]=frame[i];
+
+        nubytesTotal += nubytes;
+
+        if(substreamsCount == 1) {
+            fileinfo->fsample=(int)(fsample*1000);
+            
+            fileinfo->acmod=acmod;
+            switch(acmod) {
+                case 0:
+                    fileinfo->csMode = "1+1: A+B";
+                    break;
+                case 1:
+                    fileinfo->csMode = "1/0: C";
+                    break;
+                case 2:
+                    fileinfo->csMode = "2/0: L+R";
+                    break;
+                case 3:
+                    fileinfo->csMode = "3/0: L+C+R";
+                    break;
+                case 4:
+                    fileinfo->csMode = "2/1: L+R+S";
+                    break;
+                case 5:
+                    fileinfo->csMode = "3/1: L+C+R+S";
+                    break;
+                case 6:
+                    fileinfo->csMode = "2/2: L+R+SL+SR";
+                    break;
+                case 7:
+                    fileinfo->csMode = "3/2: L+C+R+SL+SR";
+                    break;
+                default:
+                    fileinfo->csMode = "Unknown acmode: " + acmod;
+            }
+            
+            if (lfeon)
+                fileinfo->csLFE="LFE: Present";
+            else
+                fileinfo->csLFE="LFE: Not present";
+                
+            fileinfo->fscod=fscod;
+        }
+        
+        //printf("base: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s\n", BytesPerFrame, syncword, strmtyp, substreamid, frmsize, fscod, fscod2, numblckscod, acmod, lfeon, bsid, dialnorm, compre, numblcks, rate, mode);
     }
 
-
-    if (nubytes <12 || caracter[0]!= 0x0B || caracter[1]!=0x77)
-        return -1;
-
-    syncword=   getbits (16, caracter);
-    strmtyp=    getbits (2,  caracter);
-    substreamid=getbits (3,  caracter);
-    frmsize=    getbits (11, caracter);
-    fscod=      getbits (2,  caracter);
-    fscod2=     getbits (2,  caracter);
-    numblckscod=fscod2;
-    acmod=      getbits (3,  caracter);
-    lfeon=      getbits (1,  caracter);
-    bsid=       getbits (5,  caracter);
-    dialnorm=   getbits (5,  caracter);
-    compre=     getbits (1,  caracter);
-    if (compre) compr=getbits(8, caracter);
-
-    if (fscod==0)      fsample=48.0;
-    else if (fscod==1) fsample=44.1;
-    else if (fscod==2) fsample=32.0;
-    else
- {
-   numblckscod = 3;
-   if (fscod2==0)     fsample=24.0;
-   else if (fscod==1) fsample=22.05;
-   else if (fscod==2) fsample=16.0;
-   else               fsample=0.0;
- }
-
- if (numblckscod==0)      numblcks=1;
- else if (numblckscod==1) numblcks=2;
- else if (numblckscod==2) numblcks=3;
- else                     numblcks=6;
-
-    if      (acmod==0) strcpy (mode,"1+1: A+B");
-    else if (acmod==1) strcpy (mode,"1/0: C");
-    else if (acmod==2) strcpy (mode,"2/0: L+R");
-    else if (acmod==3) strcpy (mode,"3/0: L+C+R");
-    else if (acmod==4) strcpy (mode,"2/1: L+R+S");
-    else if (acmod==5) strcpy (mode,"3/1: L+C+R+S");
-    else if (acmod==6) strcpy (mode,"2/2: L+R+SL+SR");
-    else if (acmod==7) strcpy (mode,"3/2: L+C+R+SL+SR");
-
- rate = (BytesPerFrame * 8 * (750 / numblcks)) / 4000;
-
 #ifndef Q_OS_WIN
+    struct stat64 statbuf;
     fstat64(fileno(in), &statbuf);
 #else
+    struct _stati64 statbuf;
     _fstati64(fileno(in), &statbuf);
 #endif
 
-    nuframes=       statbuf.st_size/BytesPerFrame;
-    rest=           statbuf.st_size%nuframes;
-    FramesPerSecond=((double)(rate))*1000.0/(BytesPerFrame * 8);
-    FrameDuration=  1000.0/FramesPerSecond; // in msecs
-    TimeLengthIni=  statbuf.st_size/(rate/8); // in msecs
+    qint64 nuframes=       statbuf.st_size/BytesPerFrameTotal;
+    qint64 rest=           statbuf.st_size%nuframes;
+    qreal FramesPerSecond=((double)(rateTotal))*1000.0/(BytesPerFrameTotal * 8);
+    qreal FrameDuration=  1000.0/FramesPerSecond; // in msecs
+    qint64 TimeLengthIni=  statbuf.st_size/(rateTotal/8); // in msecs
 
     fileinfo->csOriginalDuration = QString("%1:%2:%3.%4")
                                     .arg(TimeLengthIni / 3600000, 2, 10, QChar('0'))
                                     .arg((TimeLengthIni % 3600000) / 60000, 2, 10, QChar('0'))
                                     .arg((TimeLengthIni % 60000) / 1000, 2, 10, QChar('0'))
                                     .arg(TimeLengthIni % 1000, 3, 10, QChar('0'));
-    fileinfo->fsample=(int)(fsample*1000);
+    //printf("Total: %d, %d, %d, %llu, %llu, %f, %f, %s\n", substreamsCount, BytesPerFrameTotal, rateTotal, nuframes, rest, FramesPerSecond, FrameDuration, fileinfo->csOriginalDuration.toUtf8().data());
     fileinfo->layer=0;
-    fileinfo->type="eac3";
+    fileinfo->iSubstreamsCount=substreamsCount;
+    if(substreamsCount > 1)
+        fileinfo->csMode += " / multiple substreams";
     fileinfo->dFrameduration=FrameDuration;
     fileinfo->i64Filesize=statbuf.st_size;
     fileinfo->i64TotalFrames=nuframes;
-    fileinfo->bitrate=rate;
-    fileinfo->dactrate=(double)rate;
-    fileinfo->dBytesperframe=(double)BytesPerFrame;
-    fileinfo->csMode = mode;
+    fileinfo->bitrate=rateTotal;
+    fileinfo->dactrate=(double) rateTotal;
+    fileinfo->dBytesperframe=(double) BytesPerFrameTotal;
     fileinfo->dFramesPerSecond=FramesPerSecond;
-    if (lfeon) fileinfo->csLFE="LFE: Present";
-    else       fileinfo->csLFE="LFE: Not present";
     fileinfo->i64rest=rest;
-//	fileinfo->bsmod=bsmod;
-    fileinfo->acmod=acmod;
-//	fileinfo->frmsizecod=frmsizecod;
-    fileinfo->fscod=fscod;
     fileinfo->cpf=1;
     fileinfo->i64frameinfo=1;
-
-/////////////////////////////////////////////////////////////////////////////
-// Fill silence frame, If acmod or bitrate is not included, use first frame
-/////////////////////////////////////////////////////////////////////////////
-
-    p_silence=silence;
-    for (i=0; i<nubytes; i++)
-        silence[i]=caracter[i];
 
     return 0;
 }
@@ -534,7 +660,7 @@ void Delayac3::delayac3()
         m_iCrc = CRC_SKIP;
     }
 
-    uchar caracter[MAXFRAMESIZE];
+    uchar frame[MAXFRAMESIZE];
 
 
     // init ac3_crc
@@ -577,7 +703,7 @@ void Delayac3::delayac3()
         if(i64 == fileInfo->i64StartSilenceFrame) {
             for(qint64 i64Counter=0; i64Counter < fileInfo->i64LengthSilenceFrame; i64Counter++) {
                 i64frameswritten++;
-                writeeac3frame (outputFile, p_silence);
+                writeac3frame (outputFile, fileInfo->silence[0]);
             }
         }
 
@@ -592,14 +718,14 @@ void Delayac3::delayac3()
             iBytesPerFramePrev=(int)i64nubytes;
 
             f_writeframe=WF_WRITE; //indicates write frame
-            i64nubytes=readac3frame (inputFile, caracter);
+            i64nubytes=readac3frame (inputFile, frame);
             if( i64nubytes <5)
             {
                 bEndOfFile=true;
                 break;
             }
-//			iFrmsizecodn=caracter[4]& 0x3F;
-            iFrmsizecodn=caracter[4];
+//			iFrmsizecodn=frame[4]& 0x3F;
+            iFrmsizecodn=frame[4];
             iBytesPerFramen=FrameSize_ac3[iFrmsizecodn]*2;
             csTime = QString("%1:%2:%3.%4")
                             .arg(((int) (dFrameduration * i64)) / 3600000, 2, 10, QChar('0'))
@@ -607,7 +733,7 @@ void Delayac3::delayac3()
                             .arg((((int) (dFrameduration * i64)) % 60000) / 1000, 2, 10, QChar('0'))
                             .arg(((int) (dFrameduration * i64)) % 1000, 3, 10, QChar('0'));
 
-            if ( caracter[0]!= 0x0B || caracter[1]!=0x77)
+            if ( frame[0]!= 0x0B || frame[1]!=0x77)
             {
                 nuerrors++;
                 csAux = QString("Time %1; Frame#= %2. Unsynchronized frame...").arg(csTime).arg(i64 + 1);
@@ -624,15 +750,15 @@ void Delayac3::delayac3()
                     fseek(inputFile, (long)(-1*(i64nubytes+iBytesPerFramePrev-2)), SEEK_CUR);
                 }
 
-                caracter[0]=fgetc(inputFile);
-                caracter[1]=fgetc(inputFile);
-                while ((caracter[0]!= 0x0B || caracter[1]!=0x77 ) && !feof(inputFile) )
+                frame[0]=fgetc(inputFile);
+                frame[1]=fgetc(inputFile);
+                while ((frame[0]!= 0x0B || frame[1]!=0x77 ) && !feof(inputFile) )
                 {
-                    caracter[0]= caracter[1];
-                    caracter[1]= fgetc(inputFile);
+                    frame[0]= frame[1];
+                    frame[1]= fgetc(inputFile);
                     n64skip++;
                 }
-                if (caracter[0]== 0x0B && caracter[1]==0x77)
+                if (frame[0]== 0x0B && frame[1]==0x77)
                 {
                     if (n64skip>0)
                         csAux1 = QString("SKIPPED  %1 bytes. Found new synch word").arg(n64skip);
@@ -664,13 +790,13 @@ void Delayac3::delayac3()
             {
 
 // Some consistence checks
-                syncwordn=   getbits (16, caracter);
-                crc1n=       getbits (16, caracter);
-                fscodn=      getbits (2, caracter);
-                iFrmsizecodn=getbits (6, caracter);
-                bsidn=       getbits (5, caracter);
-                bsmodn=      getbits (3, caracter);
-                acmodn=      getbits (3, caracter);
+                syncwordn=   getbits (16, frame);
+                crc1n=       getbits (16, frame);
+                fscodn=      getbits (2, frame);
+                iFrmsizecodn=getbits (6, frame);
+                bsidn=       getbits (5, frame);
+                bsmodn=      getbits (3, frame);
+                acmodn=      getbits (3, frame);
                 if ((iFrmsizecodn >> 1) != (fileInfo->frmsizecod >>1) ||
                     fscodn != fileInfo->fscod ||
                     bsmodn != fileInfo->bsmod || acmodn != fileInfo->acmod)
@@ -695,49 +821,49 @@ void Delayac3::delayac3()
                 frame_size = FrameSize_ac3[(iFrmsizecodn + (64 * fscodn))];
                 frame_size_58 = ((frame_size >> 1) + (frame_size >> 3));
 
-                cal_crc1 = ac3_crc(caracter + 4, (2 * frame_size_58) - 4, 0);
+                cal_crc1 = ac3_crc(frame + 4, (2 * frame_size_58) - 4, 0);
                 crc_inv  = pow_poly((CRC16_POLY >> 1), (16 * frame_size_58) - 16, CRC16_POLY);
                 cal_crc1 = mul_poly(crc_inv, cal_crc1, CRC16_POLY);
-                cal_crc2 = ac3_crc(caracter + 2 * frame_size_58, (frame_size - frame_size_58) * 2 - 2, 0);
+                cal_crc2 = ac3_crc(frame + 2 * frame_size_58, (frame_size - frame_size_58) * 2 - 2, 0);
 
                 bCRCError=false;
-                if (caracter[2]!=(cal_crc1 >> 8) ||
-                    caracter[3]!=(cal_crc1 & 0xff) )
+                if (frame[2]!=(cal_crc1 >> 8) ||
+                    frame[3]!=(cal_crc1 & 0xff) )
                 {
                     bCRCError=true;
                     nuerrors++;
                     {
                         csAux = QString("Time %1; Frame#= %2.  Crc1 error %3: read = %4%5; calculated=%6%7")
                                         .arg(csTime).arg(i64 + 1).arg(fixCRC)
-                                        .arg(caracter[2], 2, 16, QChar('0')).arg(caracter[3], 2, 16, QChar('0'))
+                                        .arg(frame[2], 2, 16, QChar('0')).arg(frame[3], 2, 16, QChar('0'))
                                         .arg(cal_crc1 >> 8, 2, 16, QChar('0')).arg(cal_crc1 & 0xff, 2, 16, QChar('0'));
                         printlog(logFile, csAux, isCLI, writeConsole);
                     }
                     if (m_iCrc==CRC_FIX)
                     {
-                        caracter[2]=(cal_crc1 >> 8);
-                        caracter[3]=cal_crc1 & 0xff;
+                        frame[2]=(cal_crc1 >> 8);
+                        frame[3]=cal_crc1 & 0xff;
                     }
                     else if (m_iCrc==CRC_SKIP) f_writeframe=WF_SKIP;
                     else if (m_iCrc==CRC_SILENCE) f_writeframe=WF_SILENCE;
                 }
 
-                if (caracter[2*frame_size - 2]!=(cal_crc2 >> 8) ||
-                    caracter[2*frame_size - 1]!=(cal_crc2 & 0xff) )
+                if (frame[2*frame_size - 2]!=(cal_crc2 >> 8) ||
+                    frame[2*frame_size - 1]!=(cal_crc2 & 0xff) )
                 {
                     bCRCError=true;
                     nuerrors++;
                     {
                         csAux = QString("Time %1; Frame#= %2.  Crc2 error %3: read = %4%5; calculated=%6%7")
                             .arg(csTime).arg(i64 + 1).arg(fixCRC)
-                            .arg(caracter[(2 * frame_size) - 2], 2, 16, QChar('0')).arg(caracter[(2 * frame_size) - 1], 2, 16, QChar('0'))
+                            .arg(frame[(2 * frame_size) - 2], 2, 16, QChar('0')).arg(frame[(2 * frame_size) - 1], 2, 16, QChar('0'))
                             .arg(cal_crc2 >> 8, 2, 16, QChar('0')).arg(cal_crc2 & 0xff, 2, 16, QChar('0'));
                         printlog(logFile, csAux, isCLI, writeConsole);
                     }
                     if (m_iCrc==CRC_FIX)
                     {
-                        caracter[2*frame_size - 2]=(cal_crc2 >> 8);
-                        caracter[2*frame_size - 1]=cal_crc2 & 0xff;
+                        frame[2*frame_size - 2]=(cal_crc2 >> 8);
+                        frame[2*frame_size - 1]=cal_crc2 & 0xff;
                     }
                     else if (m_iCrc==CRC_SKIP) f_writeframe=WF_SKIP;
                     else if (m_iCrc==CRC_SILENCE) f_writeframe=WF_SILENCE;
@@ -751,7 +877,7 @@ void Delayac3::delayac3()
         if (f_writeframe==WF_WRITE)
         {
             i64frameswritten++;
-            writeac3frame (outputFile, caracter);
+            writeac3frame (outputFile, frame);
         }
         else if (f_writeframe==WF_SILENCE)
         {
@@ -786,6 +912,8 @@ void Delayac3::writeac3frame (FILE *fileout, uchar *p_frame)
 
     frmsizecod = p_frame[4];
     nubytes = FrameSize_ac3[frmsizecod] * 2;
+    if(nubytes > MAXFRAMESIZE)
+        nubytes = MAXFRAMESIZE;
 
     fwrite(p_frame, sizeof(unsigned char), nubytes, fileout);
 }
@@ -803,7 +931,7 @@ void Delayac3::delaydts()
     qint64 n64skip;
     bool bEndOfFile;
 
-    uchar caracter[MAXFRAMESIZE];
+    uchar frame[MAXFRAMESIZE];
 
 //	ac3_crc_init(); Done in Initinstance
 
@@ -857,13 +985,13 @@ void Delayac3::delaydts()
         {
             iBytesPerFramePrev=(int)i64nubytes;
             f_writeframe=WF_WRITE; //indicates write frame
-            i64nubytes=readdtsframe (inputFile, caracter);
+            i64nubytes=readdtsframe (inputFile, frame);
             if( i64nubytes <5)
             {
                 bEndOfFile=true;
                 break;
             }
-            iBytesPerFramen=((caracter[5]&0x3)*256 + caracter[6])*16 + (caracter[7]&0xF0)/16 +1;
+            iBytesPerFramen=((frame[5]&0x3)*256 + frame[6])*16 + (frame[7]&0xF0)/16 +1;
 
             csTime = QString("%1:%2:%3.%4")
                             .arg((dFrameduration * i64) / 3600000, 2, 'd', 10, QChar('0'))
@@ -871,8 +999,8 @@ void Delayac3::delaydts()
                             .arg((((int) (dFrameduration * i64)) % 60000) / 1000, 2, 'd', 10, QChar('0'))
                             .arg(((int) (dFrameduration * i64)) % 1000, 3, 'd', 10, QChar('0'));
 
-            if (caracter[0] != 0x7F || caracter[1] != 0xFE ||
-                    caracter[2] != 0x80 || caracter[3] != 0x01)
+            if (frame[0] != 0x7F || frame[1] != 0xFE ||
+                    frame[2] != 0x80 || frame[3] != 0x01)
             {
                 nuerrors++;
                 csAux = QString("Time %1; Frame#= %2. Unsynchronized frame...").arg(csTime).arg(i64 + 1);
@@ -881,21 +1009,21 @@ void Delayac3::delaydts()
                 n64skip= -1*iBytesPerFramePrev+4;
                 fseek(inputFile, (long)(-1*(i64nubytes+iBytesPerFramePrev-4)), SEEK_CUR);
 
-                caracter[0]=fgetc(inputFile);
-                caracter[1]=fgetc(inputFile);
-                caracter[2]=fgetc(inputFile);
-                caracter[3]=fgetc(inputFile);
-                while ((caracter[0] != 0x7F || caracter[1] != 0xFE ||
-                    caracter[2] != 0x80 || caracter[3] != 0x01)  && !feof(inputFile) )
+                frame[0]=fgetc(inputFile);
+                frame[1]=fgetc(inputFile);
+                frame[2]=fgetc(inputFile);
+                frame[3]=fgetc(inputFile);
+                while ((frame[0] != 0x7F || frame[1] != 0xFE ||
+                    frame[2] != 0x80 || frame[3] != 0x01)  && !feof(inputFile) )
                 {
-                    caracter[0]= caracter[1];
-                    caracter[1]= caracter[2];
-                    caracter[2]= caracter[3];
-                    caracter[3]= fgetc(inputFile);
+                    frame[0]= frame[1];
+                    frame[1]= frame[2];
+                    frame[2]= frame[3];
+                    frame[3]= fgetc(inputFile);
                     n64skip++;
                 }
-                if (caracter[0] == 0x7F && caracter[1] == 0xFE &&
-                    caracter[2] == 0x80 && caracter[3] == 0x01)
+                if (frame[0] == 0x7F && frame[1] == 0xFE &&
+                    frame[2] == 0x80 && frame[3] == 0x01)
                 {
                     if (n64skip>0)
                         csAux1 = QString("SKIPPED  %1 bytes. Found new synch word").arg(n64skip);
@@ -929,22 +1057,22 @@ void Delayac3::delaydts()
 // Some consistence checks
 
 
-/*				syncword=   getbits (32, caracter);
-                ftype=      getbits (1, caracter);
-                fshort=     getbits (5, caracter);
-                cpf=        getbits (1, caracter);
-                nblks=      getbits (7, caracter);
-                fsize=      getbits (14,caracter);
+/*				syncword=   getbits (32, frame);
+                ftype=      getbits (1, frame);
+                fshort=     getbits (5, frame);
+                cpf=        getbits (1, frame);
+                nblks=      getbits (7, frame);
+                fsize=      getbits (14,frame);
 */
-                unused=     getbits (32, caracter);
-                unused=     getbits (1, caracter);
-                unused=     getbits (5, caracter);
-                unused=     getbits (1, caracter);
-                unused=     getbits (7, caracter);
-                unused=     getbits (14,caracter);
-                amode=      getbits (6, caracter);
-                sfreq=      getbits (4, caracter);
-                rate=       getbits (5, caracter);
+                unused=     getbits (32, frame);
+                unused=     getbits (1, frame);
+                unused=     getbits (5, frame);
+                unused=     getbits (1, frame);
+                unused=     getbits (7, frame);
+                unused=     getbits (14,frame);
+                amode=      getbits (6, frame);
+                sfreq=      getbits (4, frame);
+                rate=       getbits (5, frame);
                 rate=       dtsbitrate[rate];
 
                 if (sfreq != fileInfo->fscod ||	amode != fileInfo->acmod  || rate != fileInfo->bitrate )
@@ -969,7 +1097,7 @@ void Delayac3::delaydts()
         if (f_writeframe==WF_WRITE)
         {
             i64frameswritten++;
-            writedtsframe(outputFile, caracter);
+            writedtsframe(outputFile, frame);
         }
         else if (f_writeframe==WF_SILENCE)
         {
@@ -1024,7 +1152,7 @@ void Delayac3::delaympa()
     qint32 layer, protection_bit, rate, fsamp, unused;
     quint32 crc_cal1;
     bool bEndOfFile;
-    uchar caracter[MAXFRAMESIZE];
+    uchar frame[MAXFRAMESIZE];
     qint32 j, i;
     qint32 mode;
     qint32 nbits;
@@ -1106,7 +1234,7 @@ void Delayac3::delaympa()
 
             iBytesPerFramePrev=(int)i64nubytes;
 
-            i64nubytes=readmpaframe (inputFile, caracter);
+            i64nubytes=readmpaframe (inputFile, frame);
             if( i64nubytes <4)
             {
                 bEndOfFile=true;
@@ -1120,7 +1248,7 @@ void Delayac3::delaympa()
                             .arg((((int) (dFrameduration * i64)) % 60000) / 1000, 2, 10, QChar('0'))
                             .arg(((int) (dFrameduration * i64)) % 1000, 3, 10, QChar('0'));
 
-            if (caracter[0] != 0xFF || (caracter[1] & 0xF0 )!= 0xF0 )
+            if (frame[0] != 0xFF || (frame[1] & 0xF0 )!= 0xF0 )
 
             {
                 nuerrors++;
@@ -1134,15 +1262,15 @@ void Delayac3::delaympa()
 
                 fseek(inputFile, (long)(-1*i64nubytes), SEEK_CUR);
 
-                caracter[0]=fgetc(inputFile);
-                caracter[1]=fgetc(inputFile);
-                while ((caracter[0] != 0xFF || (caracter[1] & 0xF0 )!= 0xF0 ) && !feof(inputFile) )
+                frame[0]=fgetc(inputFile);
+                frame[1]=fgetc(inputFile);
+                while ((frame[0] != 0xFF || (frame[1] & 0xF0 )!= 0xF0 ) && !feof(inputFile) )
                 {
-                    caracter[0]= caracter[1];
-                    caracter[1]= fgetc(inputFile);
+                    frame[0]= frame[1];
+                    frame[1]= fgetc(inputFile);
                     n64skip++;
                 }
-                if (caracter[0] == 0xFF && (caracter[1] & 0xF0 )== 0xF0 )
+                if (frame[0] == 0xFF && (frame[1] & 0xF0 )== 0xF0 )
                 {
                     if (n64skip>0)
                         csAux1 = QString("SKIPPED  %1 bytes. Found new synch word").arg(n64skip);
@@ -1174,28 +1302,28 @@ void Delayac3::delaympa()
             {
 
 // Some consistence checks
-//	nubytes=readmpaframe (in, caracter);
+//	nubytes=readmpaframe (in, frame);
 
-                syncword=      getbits (12, caracter);
-                iID=           getbits (1, caracter);
-                layer=         getbits (2, caracter);
-                protection_bit=getbits (1, caracter);
-                rate=          getbits (4, caracter);
+                syncword=      getbits (12, frame);
+                iID=           getbits (1, frame);
+                layer=         getbits (2, frame);
+                protection_bit=getbits (1, frame);
+                rate=          getbits (4, frame);
                 irate=rate;
-                fsamp=         getbits (2, caracter);
+                fsamp=         getbits (2, frame);
 
-                padding_bit=   getbits (1, caracter);
-                private_bit=   getbits (1, caracter);
-                mode=          getbits (2, caracter);
-/*				mode_extension=getbits (2, caracter);
-                copyright=     getbits (1, caracter);
-                original=      getbits (1, caracter);
-                emphasis=      getbits (2, caracter);
+                padding_bit=   getbits (1, frame);
+                private_bit=   getbits (1, frame);
+                mode=          getbits (2, frame);
+/*				mode_extension=getbits (2, frame);
+                copyright=     getbits (1, frame);
+                original=      getbits (1, frame);
+                emphasis=      getbits (2, frame);
 */
-                unused=        getbits (6, caracter);
+                unused=        getbits (6, frame);
 
                 if (protection_bit==0)
-                    crc_check=getbits (16, caracter);
+                    crc_check=getbits (16, frame);
 
                 if		(layer==1) layer=3;
                 else if (layer==3) layer=1;
@@ -1256,43 +1384,43 @@ void Delayac3::delaympa()
 //  but the actual number could be lower, different per frame
                     for (i=0;i<layerIIsub[0];i++)
                     {
-                        unused=	getbits (4, caracter);
+                        unused=	getbits (4, frame);
                         if (unused==0) nbits-=2;
                         if (mode != 3)
                         {
-                            unused=	getbits (4, caracter);
+                            unused=	getbits (4, frame);
                             if (unused==0) nbits-=2;
                         }
                     }
                     for (i=0;i<layerIIsub[1];i++)
                     {
-                        unused=	getbits (3, caracter);
+                        unused=	getbits (3, frame);
                         if (unused==0) nbits-=2;
                         if (mode != 3)
                         {
-                            unused=	getbits (3, caracter);
+                            unused=	getbits (3, frame);
                             if (unused==0) nbits-=2;
                         }
                     }
                     for (i=0;i<layerIIsub[2];i++)
                     {
-                        unused=	getbits (2, caracter);
+                        unused=	getbits (2, frame);
                         if (unused==0) nbits-=2;
                         if (mode != 3)
                         {
-                            unused=	getbits (2, caracter);
+                            unused=	getbits (2, frame);
                             if (unused==0) nbits-=2;
                         }
                     }
 
-                    crc_cal1 = ac3_crc(caracter + 2, 2 , 0xffff);
-//					crc_cal1 = ac3_crc(caracter + 6, (int)(i64nubytes-6), crc_cal1);
+                    crc_cal1 = ac3_crc(frame + 2, 2 , 0xffff);
+//					crc_cal1 = ac3_crc(frame + 6, (int)(i64nubytes-6), crc_cal1);
                     if (6+nbits/8 <= (int)(i64nubytes))
                     {
-                        crc_cal1 = ac3_crc(caracter + 6, nbits/8, crc_cal1);
+                        crc_cal1 = ac3_crc(frame + 6, nbits/8, crc_cal1);
                         for (j=0;j<(nbits%8);j++)
                         {
-                            crc_cal1 = ac3_crc_bit(caracter+6+nbits/8, 7-j, crc_cal1);
+                            crc_cal1 = ac3_crc_bit(frame+6+nbits/8, 7-j, crc_cal1);
                         }
 //						csAux.Format(_T("read=%04X ;cal=%04X"), crc_check, crc_cal1);
 //						if (AfxMessageBox(csAux, MB_RETRYCANCEL, 0) == IDCANCEL)
@@ -1304,7 +1432,7 @@ void Delayac3::delaympa()
                     {
                         for (j=0;j<8;j++)
                         {
-                            crc_cal1 = ac3_crc_bit(caracter+6+i, 7-j, crc_cal1);
+                            crc_cal1 = ac3_crc_bit(frame+6+i, 7-j, crc_cal1);
                             if (crc_cal1 == crc_check)
                             {
                                 csAux.Format(_T("Found i=%d; j=%d; nbits=%d; nbitsc=%d"),i,j,i*8+j+1,nbits);
@@ -1327,8 +1455,8 @@ void Delayac3::delaympa()
                         }
                         if (m_iCrc==CRC_FIX)
                         {
-                            caracter[4]=(crc_cal1 >> 8);
-                            caracter[5]=crc_cal1 & 0xff;
+                            frame[4]=(crc_cal1 >> 8);
+                            frame[5]=crc_cal1 & 0xff;
                         }
                         else if (m_iCrc==CRC_SKIP) f_writeframe=WF_SKIP;
                         else if (m_iCrc==CRC_SILENCE) f_writeframe=WF_SILENCE;
@@ -1341,7 +1469,7 @@ void Delayac3::delaympa()
         if (f_writeframe==WF_WRITE)
         {
             i64frameswritten++;
-            writempaframe (outputFile, caracter);
+            writempaframe (outputFile, frame);
         }
         else if (f_writeframe==WF_SILENCE)
         {
@@ -1450,7 +1578,7 @@ void Delayac3::delaywav()
     qint32 f_writeframe, nuerrors;
     qint64 i64Aux;
     bool bEndOfFile;
-    uchar caracter[MAXFRAMESIZE];
+    uchar frame[MAXFRAMESIZE];
 
     iInidata=fileInfo->iInidata;
     i64StartFrame=fileInfo->i64StartFrame;
@@ -1466,21 +1594,21 @@ void Delayac3::delaywav()
     printlog (logFile, "====== PROCESSING LOG ======================", isCLI, writeConsole);
 
 // Write wav header
-    readwavsample (inputFile, caracter,iInidata);
+    readwavsample (inputFile, frame,iInidata);
 
 /*	i64Aux=i64nuframes*iBytesPerFrame+iInidata-8;
-    caracter[4]=(unsigned char)(i64Aux%256);
-    caracter[5]=(unsigned char)((i64Aux >> 8)%256);
-    caracter[6]=(unsigned char)((i64Aux >>16)%256);
-    caracter[7]=(unsigned char)((i64Aux >>24)%256);
+    frame[4]=(unsigned char)(i64Aux%256);
+    frame[5]=(unsigned char)((i64Aux >> 8)%256);
+    frame[6]=(unsigned char)((i64Aux >>16)%256);
+    frame[7]=(unsigned char)((i64Aux >>24)%256);
 
     i64Aux=i64nuframes*iBytesPerFrame;
-    caracter[iInidata-4]=(unsigned char)(i64Aux%256);
-    caracter[iInidata-3]=(unsigned char)((i64Aux >> 8)%256);
-    caracter[iInidata-2]=(unsigned char)((i64Aux >>16)%256);
-    caracter[iInidata-1]=(unsigned char)((i64Aux >>24)%256);
+    frame[iInidata-4]=(unsigned char)(i64Aux%256);
+    frame[iInidata-3]=(unsigned char)((i64Aux >> 8)%256);
+    frame[iInidata-2]=(unsigned char)((i64Aux >>16)%256);
+    frame[iInidata-1]=(unsigned char)((i64Aux >>24)%256);
 */
-    writewavsample (outputFile, caracter,iInidata);
+    writewavsample (outputFile, frame,iInidata);
 
     if (i64StartFrame > 0 && *abort==false )
     {
@@ -1517,7 +1645,7 @@ void Delayac3::delaywav()
         else
         {
             f_writeframe=WF_WRITE; //indicates write frame
-            i64nubytes=readwavsample (inputFile, caracter,iBytesPerFrame);
+            i64nubytes=readwavsample (inputFile, frame,iBytesPerFrame);
             if( i64nubytes <1)
             {
                 bEndOfFile=true;
@@ -1528,7 +1656,7 @@ void Delayac3::delaywav()
         if (f_writeframe==WF_WRITE)
         {
             i64frameswritten++;
-            writewavsample (outputFile, caracter,iBytesPerFrame);
+            writewavsample (outputFile, frame,iBytesPerFrame);
         }
         else if (f_writeframe==WF_SILENCE)
         {
@@ -1588,6 +1716,9 @@ int Delayac3::readwavsample(FILE *filein, unsigned char *p_frame, int nubytes)
 
 void Delayac3::writewavsample(FILE *fileout, unsigned char *p_frame, int nubytes)
 {
+    if(nubytes > MAXFRAMESIZE)
+        nubytes = MAXFRAMESIZE;
+
     fwrite(p_frame,sizeof (unsigned char), nubytes, fileout);
 
     return;
@@ -1597,7 +1728,7 @@ qint32 Delayac3::getwavinfo(FILE *in, FILEINFO *fileinfo)
 {
     quint32 BytesPerFrame, i, nextbyte;
     quint32 iByterate, nChannels, nBits, iRate, fsample;
-    uchar caracter[50];
+    uchar frame[50];
     uchar mybuffer[20];
 #ifndef Q_OS_WIN
     struct stat64 statbuf;
@@ -1611,12 +1742,12 @@ qint32 Delayac3::getwavinfo(FILE *in, FILEINFO *fileinfo)
 
 // search for RIFF */
     for (i=0;!feof(in) && i < 12 ;i++)
-        caracter[i]=fgetc(in);
+        frame[i]=fgetc(in);
 
-    if (caracter[0] != 'R' || caracter[1] != 'I' ||
-        caracter[2] != 'F' || caracter[3] != 'F' ||
-        caracter[8] != 'W' || caracter[9] != 'A' ||
-        caracter[10] != 'V' || caracter[11] != 'E' ) return -1;
+    if (frame[0] != 'R' || frame[1] != 'I' ||
+        frame[2] != 'F' || frame[3] != 'F' ||
+        frame[8] != 'W' || frame[9] != 'A' ||
+        frame[10] != 'V' || frame[11] != 'E' ) return -1;
 
 // search for fmt //
 
@@ -1640,7 +1771,7 @@ qint32 Delayac3::getwavinfo(FILE *in, FILEINFO *fileinfo)
     fseek(in, -4L, SEEK_CUR);
 
     for (i=0;i<24;i++)
-        caracter[12+i]=fgetc(in);
+        frame[12+i]=fgetc(in);
     nextbyte+=20;
 
 // search for data //
@@ -1664,7 +1795,7 @@ qint32 Delayac3::getwavinfo(FILE *in, FILEINFO *fileinfo)
     fseek(in, -4L, SEEK_CUR);
 
     for (i=0;i<8;i++)
-        caracter[24+12+i]=fgetc(in);
+        frame[24+12+i]=fgetc(in);
 
     nextbyte+=4;
 
@@ -1674,15 +1805,15 @@ qint32 Delayac3::getwavinfo(FILE *in, FILEINFO *fileinfo)
     _fstati64(fileno(in), &statbuf);
 #endif
 
-    BytesPerFrame=caracter[32]+caracter[33]*256;
-    i64size=      (quint32)(caracter[40]+(caracter[41]<<8)+(caracter[42]<<16)+(caracter[43]<<24));
+    BytesPerFrame=frame[32]+frame[33]*256;
+    i64size=      (quint32)(frame[40]+(frame[41]<<8)+(frame[42]<<16)+(frame[43]<<24));
     if (i64size > statbuf.st_size-nextbyte) i64size= statbuf.st_size-nextbyte;
     nuframes=     i64size/BytesPerFrame;
     rest=         i64size%nuframes;
-    fsample=      caracter[24]+(caracter[25]<<8)+(caracter[26]<<16)+(caracter[27]<<24);
-    iByterate=    caracter[28]+(caracter[29]<<8)+(caracter[30]<<16)+(caracter[31]<<24);
-    nChannels=    caracter[22]+(caracter[23]<<8);
-    nBits=        caracter[34]+(caracter[35]<<8);
+    fsample=      frame[24]+(frame[25]<<8)+(frame[26]<<16)+(frame[27]<<24);
+    iByterate=    frame[28]+(frame[29]<<8)+(frame[30]<<16)+(frame[31]<<24);
+    nChannels=    frame[22]+(frame[23]<<8);
+    nBits=        frame[34]+(frame[35]<<8);
     iRate=        (quint32)(BytesPerFrame*fsample*8);
     dactrate=     (qreal)iByterate*8;
 
@@ -1721,203 +1852,6 @@ qint32 Delayac3::getwavinfo(FILE *in, FILEINFO *fileinfo)
     for (i=0; i<BytesPerFrame; i++)
         silence[i]=0;
     p_silence=silence;
-
-    return 0;
-}
-
-qint32 Delayac3::getac3info(FILE *in, FILEINFO *fileinfo)
-{
-// BSI variables
-    quint32 fscod, frmsizecod, bsmod, acmod, lfeon;
-    quint32 compre, compr, cmixlev, surmixlev, crc1, bsid, dialnorm, dsurmod;
-    quint32 syncword;
-
-// Other vars
-    quint32 nubytes, rate, BytesPerFrame, i;
-#ifndef Q_OS_WIN
-    struct stat64 statbuf;
-#else
-    struct _stati64 statbuf;
-#endif
-    qreal fsample, FrameDuration, FramesPerSecond;
-    qint64 nuframes, TimeLengthIni, rest;
-    uchar caracter[MAXFRAMESIZE];
-    quint32 frame_size, frame_size_58, cal_crc2, cal_crc1, crc_inv;
-
-// init ac3_crc
-//	ac3_crc_init(); Done in Initinstance
-
-
-    fseek(in, (long)0, SEEK_SET);
-
-// Read first frame
-    nubytes=readac3frame (in, caracter);
-//	frmsizecod=caracter[4] & 0x3F;
-    frmsizecod=caracter[4];
-    BytesPerFrame=FrameSize_ac3[frmsizecod]*2;
-    while (( caracter[0]!= 0x0B || caracter[1]!=0x77 ||
-            nubytes < 12 || nubytes != BytesPerFrame) && !feof(in))
-    {
-// Try to find the next sync Word and continue...
-            // rewind nubytes (last frame)
-        fseek(in, (long)(-1*nubytes), SEEK_CUR);
-        caracter[0]=fgetc(in);
-        caracter[1]=fgetc(in);
-        while ((caracter[0]!= 0x0B || caracter[1]!=0x77) && !feof(in) )
-        {
-            caracter[0]= caracter[1];
-            caracter[1]= fgetc(in);
-        }
-        if (caracter[0]== 0x0B && caracter[1]==0x77)
-        {
-            // rewind 2 bytes
-            fseek(in, -2L, SEEK_CUR);
-            nubytes=readac3frame (in, caracter);
-//			frmsizecod=caracter[4]& 0x3F;
-            frmsizecod=caracter[4];
-            BytesPerFrame=FrameSize_ac3[frmsizecod]*2;
-        }
-    }
-
-
-    if (nubytes <12 || caracter[0]!= 0x0B || caracter[1]!=0x77)
-        return -1;
-
-    surmixlev=cmixlev=dsurmod=compr=0;
-    syncword=  getbits (16, caracter);
-    crc1=      getbits (16, caracter);
-    fscod=     getbits (2,  caracter);
-    frmsizecod=getbits (6,  caracter);
-    bsid=      getbits (5,  caracter);
-    bsmod=     getbits (3,  caracter);
-    acmod=     getbits (3,  caracter);
-    if ((acmod & 0x01) && (acmod != 0x01)) cmixlev=getbits(2, caracter);
-    if (acmod & 0x4)  surmixlev=getbits(2, caracter);
-    if (acmod == 0x2) dsurmod=getbits(2, caracter);
-    lfeon=     getbits(1, caracter);
-    dialnorm=  getbits(5, caracter);
-    compre=    getbits(1, caracter);
-    if (compre) compr=getbits(8, caracter);
-
-    if (fscod==0)      fsample=48.0;
-    else if (fscod==1) fsample=44.1;
-    else if (fscod==2) fsample=32.0 ;
-    else fsample=0.0;
-
-    switch (acmod)
-    {
-        case 0:
-            fileinfo->csMode = "1+1: A+B";
-            break;
-        case 1:
-            fileinfo->csMode = "1/0: C";
-            break;
-        case 2:
-            fileinfo->csMode = "2/0: L+R";
-            break;
-        case 3:
-            fileinfo->csMode = "3/0: L+C+R";
-            break;
-        case 4:
-            fileinfo->csMode = "2/1: L+R+S";
-            break;
-        case 5:
-            fileinfo->csMode = "3/1: L+C+R+S";
-            break;
-        case 6:
-            fileinfo->csMode = "2/2: L+R+SL+SR";
-            break;
-        case 7:
-            fileinfo->csMode = "3/2: L+C+R+SL+SR";
-            break;
-    }
-
-    rate=bitrate[frmsizecod];
-
-#ifndef Q_OS_WIN
-    fstat64(fileno(in), &statbuf);
-#else
-    _fstati64(fileno(in), &statbuf);
-#endif
-
-//	BytesPerFrame=FrameSize_48[frmsizecod ]*2;
-    BytesPerFrame=FrameSize_ac3[frmsizecod + fscod*64]*2;
-    nuframes=     statbuf.st_size/BytesPerFrame;
-    rest=         statbuf.st_size%nuframes;
-    FramesPerSecond=((double)(rate))*1000.0/(BytesPerFrame * 8);
-    FrameDuration=1000.0/FramesPerSecond; // in msecs
-    TimeLengthIni=statbuf.st_size/(rate/8); // in msecs
-
-    fileinfo->csOriginalDuration = QString("%1:%2:%3.%4")
-                                    .arg(TimeLengthIni / 3600000, 2, 10, QChar('0'))
-                                    .arg((TimeLengthIni % 3600000) / 60000, 2, 10, QChar('0'))
-                                    .arg((TimeLengthIni % 60000) / 1000, 2, 10, QChar('0'))
-                                    .arg(TimeLengthIni % 1000, 3, 10, QChar('0'));
-    fileinfo->fsample=(int)(fsample*1000);
-    fileinfo->layer=0;
-    fileinfo->type="ac3";
-    fileinfo->dFrameduration=FrameDuration;
-    fileinfo->i64Filesize=statbuf.st_size;
-    fileinfo->i64TotalFrames=nuframes;
-    fileinfo->bitrate=rate;
-    fileinfo->dactrate=(double)rate;
-    fileinfo->dBytesperframe=(double)BytesPerFrame;
-    fileinfo->dFramesPerSecond=FramesPerSecond;
-    if (lfeon) fileinfo->csLFE="LFE: Present";
-    else       fileinfo->csLFE="LFE: Not present";
-    fileinfo->i64rest=rest;
-    fileinfo->bsmod=bsmod;
-    fileinfo->acmod=acmod;
-    fileinfo->frmsizecod=frmsizecod;
-    fileinfo->fscod=fscod;
-    fileinfo->cpf=1;
-    fileinfo->i64frameinfo=1;
-
-/////////////////////////////////////////////////////////////////////////////
-// Fill silence frame, If acmod or bitrate is not included, use first frame
-/////////////////////////////////////////////////////////////////////////////
-
-    p_silence=silence;
-    for (i=0; i<nubytes; i++)
-        silence[i]=caracter[i];
-
-    nubytes=FrameSize_ac3[frmsizecod]*2;
-/////////////////////////////////////////////////////////////////////////////
-// Fill silence frame in a general way.... Only two patterns (6 and 2 channels)
-/////////////////////////////////////////////////////////////////////////////
-
-    if (acmod ==7 && nubytes >=432)
-    {
-        for (i=0;i<2048;i++)
-            silence[i]=0;
-        for (i=0;i<432;i++)
-            silence[i]=ac3_6channels[i];
-        silence[4]=(unsigned char)(fscod*64+frmsizecod);
-    }
-    else if (acmod ==2 && nubytes >=176)
-    {
-        for (i=0;i<2048;i++)
-            silence[i]=0;
-        for (i=0;i<176;i++)
-            silence[i]=ac3_2channels[i];
-        silence[4]=(unsigned char)(fscod*64+frmsizecod);
-    }
-
-////////////////////////////////////////
-// 	Silence frame: CRC calculation and fixing
-//
-    frame_size    = FrameSize_ac3[frmsizecod+64*fscod];
-    frame_size_58 = (frame_size >> 1) + (frame_size >> 3);
-
-    cal_crc1 = ac3_crc(silence + 4, (2 * frame_size_58) - 4, 0);
-    crc_inv  = pow_poly((CRC16_POLY >> 1), (16 * frame_size_58) - 16, CRC16_POLY);
-    cal_crc1 = mul_poly(crc_inv, cal_crc1, CRC16_POLY);
-    cal_crc2 = ac3_crc(silence + 2 * frame_size_58, (frame_size - frame_size_58) * 2 - 2, 0);
-
-    silence[2]=(cal_crc1 >> 8);
-    silence[3]=cal_crc1 & 0xff;
-    silence[2*frame_size - 2]=(cal_crc2 >> 8);
-    silence[2*frame_size - 1]=cal_crc2 & 0xff;
 
     return 0;
 }
@@ -1970,7 +1904,7 @@ quint32 Delayac3::ac3_crc(uchar *data, qint32 n, quint32 crc)
 qint32 Delayac3::getdtsinfo(FILE *in, FILEINFO *fileinfo)
 {
     quint32 nubytes, BytesPerFrame, i;
-    uchar caracter[MAXFRAMESIZE];
+    uchar frame[MAXFRAMESIZE];
     quint32 cpf;
     quint32 fsize, amode, sfreq, rate, lfeon;
     quint32 ftype, fshort, nblks, unused, fsample;
@@ -1990,36 +1924,36 @@ qint32 Delayac3::getdtsinfo(FILE *in, FILEINFO *fileinfo)
 
     // search for 7FFE8001 */
     for (i=0;!feof(in) && i < 4 ;i++)
-        caracter[i]=fgetc(in);
+        frame[i]=fgetc(in);
 
-    while ((caracter[0] != 0x7F || caracter[1] != 0xFE ||
-            caracter[2] != 0x80 || caracter[3] != 0x01) && !feof(in))
+    while ((frame[0] != 0x7F || frame[1] != 0xFE ||
+            frame[2] != 0x80 || frame[3] != 0x01) && !feof(in))
     {
             fseek(in, -3L, SEEK_CUR);
                 // search for 7FFE8001 */
             for (i=0;!feof(in) && i < 4 ;i++)
-                    caracter[i]=fgetc(in);
+                    frame[i]=fgetc(in);
 
     }
 
-    if (caracter[0] != 0x7F || caracter[1] != 0xFE ||
-        caracter[2] != 0x80 || caracter[3] != 0x01) return -1;
+    if (frame[0] != 0x7F || frame[1] != 0xFE ||
+        frame[2] != 0x80 || frame[3] != 0x01) return -1;
 
     fseek(in, -4L, SEEK_CUR);
 
-    nubytes=readdtsframe (in, caracter);
+    nubytes=readdtsframe (in, frame);
 
-    syncword=getbits (32, caracter);
-    ftype=   getbits (1, caracter);
-    fshort=  getbits (5, caracter);
-    cpf=     getbits (1, caracter);
-    nblks=   getbits (7, caracter);
-    fsize=   getbits (14,caracter);
-    amode=   getbits (6, caracter);
-    sfreq=   getbits (4, caracter);
-    rate=    getbits (5, caracter);
-    unused=  getbits (10, caracter);
-    lfeon=   getbits (1, caracter);
+    syncword=getbits (32, frame);
+    ftype=   getbits (1, frame);
+    fshort=  getbits (5, frame);
+    cpf=     getbits (1, frame);
+    nblks=   getbits (7, frame);
+    fsize=   getbits (14,frame);
+    amode=   getbits (6, frame);
+    sfreq=   getbits (4, frame);
+    rate=    getbits (5, frame);
+    unused=  getbits (10, frame);
+    lfeon=   getbits (1, frame);
 
     BytesPerFrame=fsize+1;
     rate=dtsbitrate[rate];
@@ -2090,7 +2024,7 @@ qint32 Delayac3::getdtsinfo(FILE *in, FILEINFO *fileinfo)
 // Fill silence frame, If bitrate is not included, use first frame
 /////////////////////////////////////////////////////////////////////////////
     for (i=0; i<nubytes; i++)
-        silence[i]=caracter[i];
+        silence[i]=frame[i];
     p_silence=silence;
     if (rate == 768 && nubytes ==1006)
         p_silence=dts_768k_48;
@@ -2149,7 +2083,7 @@ qint32 Delayac3::readdtsframe (FILE *filein, uchar *p_frame)
 qint32 Delayac3::getmpainfo(FILE *in, FILEINFO *fileinfo)
 {
     quint32 nubytes, i;
-    uchar caracter[MAXFRAMESIZE];
+    uchar frame[MAXFRAMESIZE];
     quint32 rate, fsamp, layer, protection_bit;
     quint32 mode = 0;
     quint32 syncword, iID, padding_bit, private_bit;
@@ -2183,36 +2117,36 @@ qint32 Delayac3::getmpainfo(FILE *in, FILEINFO *fileinfo)
 */
     // search for FFFX */
     for (i=0;!feof(in) && i < 2 ;i++)
-        caracter[i]=fgetc(in);
+        frame[i]=fgetc(in);
 
-    while (caracter[0] != 0xFF || ((caracter[1] & 0xF0) != 0xF0 && !feof(in)))
+    while (frame[0] != 0xFF || ((frame[1] & 0xF0) != 0xF0 && !feof(in)))
     {
             fseek(in, -1L, SEEK_CUR);
                 // search for 0xFFFX */
             for (i=0;!feof(in) && i < 2 ;i++)
-                    caracter[i]=fgetc(in);
+                    frame[i]=fgetc(in);
 
     }
 
-    if (caracter[0] != 0xFF || (caracter[1] & 0xF0 ) != 0xF0 ) return -1;
+    if (frame[0] != 0xFF || (frame[1] & 0xF0 ) != 0xF0 ) return -1;
 
     fseek(in, -2L, SEEK_CUR);
 
-    nubytes=readmpaframe (in, caracter);
+    nubytes=readmpaframe (in, frame);
 
-    syncword=      getbits (12, caracter);
-    iID=           getbits (1, caracter);
-    layer=         getbits (2, caracter);
-    protection_bit=getbits (1, caracter);
-    rate=          getbits (4, caracter);
-    fsamp=         getbits (2, caracter);
-    padding_bit=   getbits (1, caracter);
-    private_bit=   getbits (1, caracter);
-    mode=          getbits (2, caracter);
-/*  mode_extension=getbits (2, caracter);
-    copyright=     getbits (1, caracter);
-    original=      getbits (1, caracter);
-    emphasis=      getbits (2, caracter);
+    syncword=      getbits (12, frame);
+    iID=           getbits (1, frame);
+    layer=         getbits (2, frame);
+    protection_bit=getbits (1, frame);
+    rate=          getbits (4, frame);
+    fsamp=         getbits (2, frame);
+    padding_bit=   getbits (1, frame);
+    private_bit=   getbits (1, frame);
+    mode=          getbits (2, frame);
+/*  mode_extension=getbits (2, frame);
+    copyright=     getbits (1, frame);
+    original=      getbits (1, frame);
+    emphasis=      getbits (2, frame);
 */
 
 //	MpegVers= ((syncword & 0x1)<<1) + iID;
@@ -2229,7 +2163,7 @@ qint32 Delayac3::getmpainfo(FILE *in, FILEINFO *fileinfo)
 //        AddInfo("1" + CR$)
 
 //    if (protection_bit==0)
-//        crc_check=getbits (16, caracter);
+//        crc_check=getbits (16, frame);
 
     if	    (layer==1) layer=3;
     else if (layer==3) layer=1;
@@ -2308,7 +2242,7 @@ qint32 Delayac3::getmpainfo(FILE *in, FILEINFO *fileinfo)
 // Fill silence frame, If bitrate is not included, use first frame
 /////////////////////////////////////////////////////////////////////////////
     for (i=0; i<nubytes; i++)
-        silence[i]=caracter[i];
+        silence[i]=frame[i];
     p_silence=silence;
 
     if (layer==2 && fsamp==48000)
@@ -2573,6 +2507,15 @@ void Delayac3::ac3_crc_init(void)
         }
         crc_table[n] = c;
     }
+}
+
+QString Delayac3::compute_time_string(qint64 i64, qreal dFrameduration)
+{
+    return QString("%1:%2:%3.%4")
+        .arg((int) ((dFrameduration * i64) / 3600000), 2, 10, QChar('0'))
+        .arg((((int) (dFrameduration * i64)) % 3600000) / 60000, 2, 10, QChar('0'))
+        .arg((((int) (dFrameduration * i64)) % 60000) / 1000, 2, 10, QChar('0'))
+        .arg((((int) (dFrameduration * i64)) % 1000), 3, 10, QChar('0'));
 }
 
 void Delayac3::printline(QString csLinea, bool writeConsole)

@@ -47,7 +47,7 @@
 #include "fcntl.h"
 #endif
 
-DelayCut::DelayCut(QWidget *parent) :
+DelayCut::DelayCut(int argc, char *argv[], QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::DelayCut),
     crcMode("IGNORED"),
@@ -80,6 +80,9 @@ DelayCut::DelayCut(QWidget *parent) :
 #endif
     this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), qApp->desktop()->availableGeometry()));
 
+    if(argc > 1) {
+        ui->inputFileLineEdit->setText(argv[1]);
+    }
     delayValidator = new QIntValidator(-9999999, 99999999, this);
     cutValidator = new QIntValidator(0, 99999999, this);
     ui->startCuttingLineEdit->setValidator(cutValidator);
@@ -800,11 +803,11 @@ void DelayCut::GetInputFileInfo()
     }
     if (extension == "ac3")
     {
-        delayac3->getac3info(inputFile, fileInfo);
+        delayac3->getac3info(inputFile, fileInfo, false);
     }
     if (extension == "eac3" || extension == "ddp" || extension == "ec3" || extension == "dd+")
     {
-        delayac3->geteac3info(inputFile, fileInfo);
+        delayac3->getac3info(inputFile, fileInfo, true);
     }
     if (extension == "dts")
     {
@@ -991,13 +994,13 @@ void DelayCut::CalculateTarget()
     delayac3->gettargetinfo(fileInfo, calcStartDelay, calcEndDelay, calcStartCut, calcEndCut, calcStartSilence, calcLengthSilence);
 
     ui->infoTextEdit->insertPlainText(QString("====== TARGET FILE INFO ==============\n"));
-    ui->infoTextEdit->insertPlainText(QString("Start %1       %2\n").arg(fileInfo->type == "wav" ? "Sample" : "Frame ").arg(fileInfo->i64StartFrame));
-    ui->infoTextEdit->insertPlainText(QString("End %1         %2\n").arg(fileInfo->type == "wav" ? "Sample" : "Frame ").arg(fileInfo->i64EndFrame));
-    ui->infoTextEdit->insertPlainText(QString("Silence start %1         %2\n").arg(fileInfo->type == "wav" ? "Sample" : "Frame ").arg(fileInfo->i64StartSilenceFrame));
-    ui->infoTextEdit->insertPlainText(QString("Silence length %1         %2\n").arg(fileInfo->type == "wav" ? "Sample" : "Frame ").arg(fileInfo->i64LengthSilenceFrame));
-    ui->infoTextEdit->insertPlainText(QString("Num of %1     %2\n").arg(fileInfo->type == "wav" ? "Samples" : "Frames ").arg((fileInfo->i64EndFrame - fileInfo->i64StartFrame) + fileInfo->i64LengthSilenceFrame + 1));
-    ui->infoTextEdit->insertPlainText(QString("Duration           %1\n").arg(fileInfo->csTimeLengthEst));
-    ui->infoTextEdit->insertPlainText(QString("NotFixedDelay      %1\n").arg(fileInfo->dNotFixedDelay, 5, 'f', 4));
+    ui->infoTextEdit->insertPlainText(QString("Start %1          %2\n").arg(fileInfo->type == "wav" ? "Sample" : "Frame ").arg(fileInfo->i64StartFrame));
+    ui->infoTextEdit->insertPlainText(QString("End %1            %2\n").arg(fileInfo->type == "wav" ? "Sample" : "Frame ").arg(fileInfo->i64EndFrame));
+    ui->infoTextEdit->insertPlainText(QString("Silence start %1  %2\n").arg(fileInfo->type == "wav" ? "Sample" : "Frame ").arg(fileInfo->i64StartSilenceFrame));
+    ui->infoTextEdit->insertPlainText(QString("Silence length %1 %2\n").arg(fileInfo->type == "wav" ? "Sample" : "Frame ").arg(fileInfo->i64LengthSilenceFrame));
+    ui->infoTextEdit->insertPlainText(QString("Num of %1        %2\n").arg(fileInfo->type == "wav" ? "Samples" : "Frames ").arg((fileInfo->i64EndFrame - fileInfo->i64StartFrame) + fileInfo->i64LengthSilenceFrame + 1));
+    ui->infoTextEdit->insertPlainText(QString("Duration              %1\n").arg(fileInfo->csTimeLengthEst));
+    ui->infoTextEdit->insertPlainText(QString("NotFixedDelay         %1\n").arg(fileInfo->dNotFixedDelay, 5, 'f', 4));
     ui->infoTextEdit->insertPlainText("======================================\n");
 }
 

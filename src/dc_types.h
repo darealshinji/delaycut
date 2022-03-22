@@ -33,6 +33,7 @@
 #define WF_WRITE 1
 #define WF_SILENCE 2
 
+#define MAXSUBSTREAMS 64
 #define MAXFRAMESIZE 16384
 
 struct FILEINFO {
@@ -50,7 +51,8 @@ struct FILEINFO {
     qint32 fsample;
     qreal dFrameduration, dFramesPerSecond;
     QString csOriginalDuration;
-    quint32 bsmod, acmod, frmsizecod, fscod,cpf;
+    quint32 bsmod, acmod, frmsizecod, fscod, cpf;
+    quint32 iSubstreamsCount;
     //Estimated results
     QString csTimeLengthEst;
     qint64 i64StartFrame;
@@ -59,6 +61,7 @@ struct FILEINFO {
     qint64 i64LengthSilenceFrame;
     qint64 i64frameinfo;
     qreal dNotFixedDelay;
+    uchar silence[MAXSUBSTREAMS][MAXFRAMESIZE];
 };
 
 #endif // DC_TYPES_H

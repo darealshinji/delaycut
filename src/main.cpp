@@ -27,9 +27,9 @@ int main(int argc, char *argv[])
 {
 
     QApplication a(argc, argv);
-    DelayCut w;
+    DelayCut w(argc, argv);
 
-    bool isGUI = argc < 2;
+    bool isGUI = argc < 3;
 
     if (isGUI)
     {

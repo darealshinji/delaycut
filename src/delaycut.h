@@ -48,7 +48,7 @@ public slots:
     void onProcessingFinished(bool success);
 
 public:
-    explicit DelayCut(QWidget *parent = 0);
+    explicit DelayCut(int argc, char *argv[], QWidget *parent = 0);
     ~DelayCut();
     void execCLI(int argc);
 

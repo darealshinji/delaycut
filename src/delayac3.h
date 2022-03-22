@@ -46,6 +46,7 @@ public:
     void delaywav();
     qint32 getwavinfo(FILE *in, FILEINFO *fileinfo);
     qint32 getac3info(FILE *in, FILEINFO *fileinfo);
+    qint32 getac3info (FILE *in, FILEINFO *fileinfo, bool eac3);
     qint32 geteac3info (FILE *in, FILEINFO *fileinfo);
     qint32 getdtsinfo(FILE *in, FILEINFO *fileinfo);
     qint32 getmpainfo(FILE *in, FILEINFO *fileinfo);
@@ -59,6 +60,7 @@ signals:
 private:
     quint32 ac3_crc(uchar *data, qint32 n, quint32 crc);
     quint32 ac3_crc_bit(uchar *data, qint32 n, quint32 crc);
+    QString compute_time_string(qint64 i64, qreal dFrameduration);
     quint32 getbits(qint32 number, uchar *p_frame);
     quint32 mul_poly(quint32 a, quint32 b, quint32 poly);
     quint32 pow_poly(quint32 a, quint32 n, quint32 poly);
