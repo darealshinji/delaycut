@@ -212,7 +212,7 @@ void Delayac3::delayeac3()
                     fseek(inputFile, -2L, SEEK_CUR);
                     f_writeframe=WF_SKIP; // do not write this frame
                 }
-                else // nothimg to do, reached end of file
+                else // nothing to do, reached end of file
                 {
                     csAux+="NOT FIXED. Reached end of file ";
                     printlog(logFile, csAux, isCLI, writeConsole);
@@ -248,7 +248,7 @@ void Delayac3::delayeac3()
                     fileInfo->acmod= acmodn;
 
                     nuerrors++;
-                    csAux = QString("Time %1; Frame#= %2. Some basic parameters changed between Frame #3 and this frame")
+                    csAux = QString("Time %1; Frame#= %2. Some basic parameters changed between Frame #%3 and this frame")
                                     .arg(csTime).arg(i64 + 1).arg(fileInfo->i64frameinfo);
                     printlog(logFile, csAux, isCLI, writeConsole);
                     fileInfo->i64frameinfo=i64+1;
@@ -575,7 +575,6 @@ void Delayac3::delayac3()
         }
 
         if(i64 == fileInfo->i64StartSilenceFrame) {
-            printline("CI SIAMO!", true);
             for(qint64 i64Counter=0; i64Counter < fileInfo->i64LengthSilenceFrame; i64Counter++) {
                 i64frameswritten++;
                 writeeac3frame (outputFile, p_silence);
