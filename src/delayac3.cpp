@@ -28,7 +28,7 @@
 #include <math.h>
 #include <QTextStream>
 #include <QFileInfo>
-#include <QDebug>
+#include <QThread>
 
 #define NUMREAD 8
 #define MAXBYTES_PER_FRAME 2*1280
@@ -63,7 +63,7 @@ void ac3_crc_init()
 }
 
 Delayac3::Delayac3(QString inputFileName, QString outputFileName, QString logFileName, FILEINFO* fileInfo, bool isCLI, QString fixCRC, bool writeConsole) :
-    inputFileName(inputFileName), outputFileName(outputFileName), logFileName(logFileName), fileInfo(fileInfo), isCLI(isCLI), fixCRC(fixCRC), writeConsole(writeConsole), bAbort(false)
+    inputFileName(inputFileName), outputFileName(outputFileName), logFileName(logFileName), fileInfo(fileInfo), isCLI(isCLI), fixCRC(fixCRC), writeConsole(writeConsole)
 {
     ::ac3_crc_init();
 }
@@ -72,14 +72,8 @@ Delayac3::~Delayac3()
 {
 }
 
-void Delayac3::abort()
-{
-    bAbort = true;
-}
-
 void Delayac3::delayFile()
 {
-    bAbort = false;
 
 #ifndef Q_OS_WIN
     FILE* outputFile = fopen(outputFileName.toUtf8().constData(),"wb");
@@ -88,7 +82,7 @@ void Delayac3::delayFile()
 #endif
     if (!outputFile)
     {
-        emit ProcessingFinished(false, bAbort);
+        emit ProcessingFinished(false, false);
         return;
     }
 
@@ -100,7 +94,7 @@ void Delayac3::delayFile()
     if (!inputFile)
     {
         fclose(outputFile);
-        emit ProcessingFinished(false, bAbort);
+        emit ProcessingFinished(false, false);
         return;
     }
 
@@ -113,7 +107,7 @@ void Delayac3::delayFile()
     {
         fclose(outputFile);
         fclose(inputFile);
-        emit ProcessingFinished(false, bAbort);
+        emit ProcessingFinished(false, false);
         return;
     }
 
@@ -202,7 +196,7 @@ void Delayac3::delayeac3(FILE* inputFile, FILE* outputFile, FILE* logFile)
     nuerrors = 0;
 
     printlog (logFile, "====== PROCESSING LOG ======================", isCLI, writeConsole);
-    if (i64StartFrame > 0 && bAbort==false )
+    if (i64StartFrame > 0)
     {
         printlog (logFile, "Seeking....", isCLI, writeConsole);
         fseek ( inputFile, (long)(((double)i64StartFrame)*fileInfo->dBytesperframe), SEEK_SET);
@@ -214,7 +208,7 @@ void Delayac3::delayeac3(FILE* inputFile, FILE* outputFile, FILE* logFile)
     bool endOfFile = false, tooManyErrors = false, crcError = false;
     iBytesPerFramePrev = iBytesPerFramen=0;
     i64nubytes = 0;
-    for (i64 = i64StartFrame; i64 < i64EndFrame+1 && bAbort==false && endOfFile==false; i64++)
+    for (i64 = i64StartFrame; i64 < i64EndFrame+1 && !QThread::currentThread()->isInterruptionRequested() && endOfFile==false; i64++)
     {
         if (isCLI == false)
             emit UpdateProgress((int)(((i64 - i64StartFrame) * 100) / i64nuframes));
@@ -396,7 +390,7 @@ void Delayac3::delayeac3(FILE* inputFile, FILE* outputFile, FILE* logFile)
         emit UpdateProgress(100);
     }
 
-    emit ProcessingFinished(true, bAbort);
+    emit ProcessingFinished(true, QThread::currentThread()->isInterruptionRequested());
 }
 
 void Delayac3::writeeac3frame(FILE *fileout, const Frame& frame)
@@ -749,7 +743,7 @@ void Delayac3::delayac3(FILE* inputFile, FILE* outputFile, FILE* logFile)
     nuerrors=0;
 
     printlog(logFile, "====== PROCESSING LOG ======================", isCLI, writeConsole);
-    if (i64StartFrame > 0 && bAbort==false )
+    if (i64StartFrame > 0)
     {
         printlog(logFile, "Seeking....", isCLI, writeConsole);
 //		_lseeki64 ( _fileno (m_Fin), (int)(((double)i64StartFrame)*fileInfo->dBytesperframe), SEEK_SET);
@@ -762,7 +756,7 @@ void Delayac3::delayac3(FILE* inputFile, FILE* outputFile, FILE* logFile)
     bool bEndOfFile = false, tooManyErrors = false, bCRCError = false;
     iBytesPerFramePrev=iBytesPerFramen=0;
     i64nubytes=0;
-    for (i64=i64StartFrame; i64< i64EndFrame+1 && bAbort==false && bEndOfFile==false ;i64++)
+    for (i64=i64StartFrame; i64< i64EndFrame+1 && !QThread::currentThread()->isInterruptionRequested() && bEndOfFile==false ;i64++)
     {
         if (isCLI == false)
             emit UpdateProgress((int)(((i64-i64StartFrame)*100)/i64nuframes));
@@ -976,7 +970,7 @@ void Delayac3::delayac3(FILE* inputFile, FILE* outputFile, FILE* logFile)
     if (isCLI == false)
         emit UpdateProgress(100);
 
-    emit ProcessingFinished(true, bAbort);
+    emit ProcessingFinished(true, QThread::currentThread()->isInterruptionRequested());
 }
 
 void Delayac3::writeac3frame (FILE *fileout, const Frame& frame)
@@ -1018,7 +1012,7 @@ void Delayac3::delaydts(FILE* inputFile, FILE* outputFile, FILE* logFile)
 
     printlog(logFile, "====== PROCESSING LOG ======================", isCLI, writeConsole);
 
-    if (i64StartFrame > 0 && bAbort==false )
+    if (i64StartFrame > 0)
     {
         printlog (logFile, "Seeking....", isCLI, writeConsole);
 //		_lseeki64 ( _fileno (m_Fin), (int)(((double)i64StartFrame)*fileInfo->dBytesperframe), SEEK_SET);
@@ -1032,7 +1026,7 @@ void Delayac3::delaydts(FILE* inputFile, FILE* outputFile, FILE* logFile)
     iBytesPerFramePrev=iBytesPerFramen=0;
     i64nubytes=0;
 
-    for (i64=i64StartFrame; i64< i64EndFrame+1 && bAbort==false && bEndOfFile==false ;i64++)
+    for (i64=i64StartFrame; i64< i64EndFrame+1 && !QThread::currentThread()->isInterruptionRequested() && bEndOfFile==false ;i64++)
     {
         if (isCLI == false)
             emit UpdateProgress((int)(((i64-i64StartFrame)*100)/i64nuframes));
@@ -1190,7 +1184,7 @@ void Delayac3::delaydts(FILE* inputFile, FILE* outputFile, FILE* logFile)
     if (isCLI == false)
         emit UpdateProgress(100);
 
-    emit ProcessingFinished(true, bAbort);
+    emit ProcessingFinished(true, QThread::currentThread()->isInterruptionRequested());
 }
 
 void Delayac3::writedtsframe(FILE *fileout, const Frame& frame)
@@ -1256,7 +1250,7 @@ void Delayac3::delaympa(FILE* inputFile, FILE* outputFile, FILE* logFile)
 
     printlog (logFile, "====== PROCESSING LOG ======================", isCLI, writeConsole);
 
-    if (i64StartFrame > 0 && bAbort==false )
+    if (i64StartFrame > 0)
     {
         printlog (logFile, "Seeking....", isCLI, writeConsole);
 //		_lseeki64 ( _fileno (m_Fin), (int)(((double)i64StartFrame)*fileInfo->dBytesperframe), SEEK_SET);
@@ -1270,7 +1264,7 @@ void Delayac3::delaympa(FILE* inputFile, FILE* outputFile, FILE* logFile)
     iBytesPerFramePrev=iBytesPerFramen=0;
     i64nubytes=0;
 
-    for (i64=i64StartFrame; i64< i64EndFrame+1 && bAbort==false && bEndOfFile==false;i64++)
+    for (i64=i64StartFrame; i64< i64EndFrame+1 && !QThread::currentThread()->isInterruptionRequested() && bEndOfFile==false;i64++)
     {
         if (isCLI == false)
             emit UpdateProgress((int)(((i64-i64StartFrame)*100)/i64nuframes));
@@ -1555,7 +1549,7 @@ void Delayac3::delaympa(FILE* inputFile, FILE* outputFile, FILE* logFile)
     if (isCLI == false)
         emit UpdateProgress(100);
 
-    emit ProcessingFinished(true, bAbort);
+    emit ProcessingFinished(true, QThread::currentThread()->isInterruptionRequested());
 }
 
 void Delayac3::writempaframe (FILE *fileout, const Frame& frame)
@@ -1666,7 +1660,7 @@ void Delayac3::delaywav(FILE* inputFile, FILE* outputFile, FILE* logFile)
 */
     writewavsample (outputFile, frame, iInidata);
 
-    if (i64StartFrame > 0 && bAbort==false )
+    if (i64StartFrame > 0)
     {
         printlog (logFile, "Seeking....", isCLI, writeConsole);
 //		i64Aux=_lseeki64 ( _fileno (m_Fin), i64StartFrame*iBytesPerFrame + iInidata, SEEK_SET);
@@ -1676,7 +1670,7 @@ void Delayac3::delaywav(FILE* inputFile, FILE* outputFile, FILE* logFile)
     }
     if (i64EndFrame == (fileInfo->i64TotalFrames-1)) i64TotalFrames=i64EndFrame=( (qint64)1<<60);
     bool bEndOfFile = false, tooManyErrors = false;
-    for (i64=i64StartFrame; i64< i64EndFrame+1 && bAbort==false && bEndOfFile==false ;i64++)
+    for (i64=i64StartFrame; i64< i64EndFrame+1 && !QThread::currentThread()->isInterruptionRequested() && bEndOfFile==false ;i64++)
     {
         if (isCLI == false)
         {
@@ -1751,7 +1745,7 @@ void Delayac3::delaywav(FILE* inputFile, FILE* outputFile, FILE* logFile)
     if (isCLI == false)
         emit UpdateProgress(100);
 
-    emit ProcessingFinished(true, bAbort);
+    emit ProcessingFinished(true, QThread::currentThread()->isInterruptionRequested());
 }
 
 uint Delayac3::readwavsample(FILE *filein, Frame& frame, uint nubytes)

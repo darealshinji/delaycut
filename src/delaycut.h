@@ -80,9 +80,6 @@ private slots:
     void on_fpsLineEdit_textChanged();
     void on_abortButton_clicked();
 
-signals:
-    void abort();
-
 private:
     Ui::DelayCut *ui;
     //Delayac3 *delayac3;
@@ -101,7 +98,7 @@ private:
     QFontMetrics *currentFont;
     qreal startCut, endCut, startDelay, endDelay, startSilence, lengthSilence, fps;
     QString inFileName, outFileName, logFileName;
-    //QThread *workerThread;
+    QThread* workerThread;
     QString versionString;
 
     void CalculateTarget();

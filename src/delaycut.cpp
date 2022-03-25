@@ -64,6 +64,7 @@ DelayCut::DelayCut(int argc, char *argv[], QWidget *parent) :
     inFileName(""),
     outFileName(""),
     logFileName(""),
+    workerThread(new QThread()),
     versionString("delaycut v" VERSION)
 {
     ui->setupUi(this);
@@ -564,13 +565,10 @@ void DelayCut::execCLI(int argc)
 void DelayCut::keyPressEvent(QKeyEvent* event)
 {
     if (ui->processButton->isEnabled() && event->key() == Qt::Key_Return)
-    {
         on_processButton_clicked();
-    }
-    if (event->key() == Qt::Key_Escape)
-    {
-        on_quitButton_clicked();
-    }
+
+    if (ui->abortButton->isEnabled() && event->key() == Qt::Key_Escape)
+        on_abortButton_clicked();
 }
 
 void DelayCut::execute()
@@ -579,17 +577,15 @@ void DelayCut::execute()
 
     if (!isCLI)
     {
-        QThread* thread = new QThread();
         Delayac3* delayac3 = new Delayac3(inFileName, outFileName, logFileName, fileInfo, isCLI, crcMode, writeConsole);
-        delayac3->moveToThread(thread);
+        delayac3->moveToThread(workerThread);
         connect(delayac3, SIGNAL(UpdateProgress(qint32)), this, SLOT(onUpdateProgress(qint32)));
         connect(delayac3, SIGNAL(ProcessingFinished(bool, bool)), this, SLOT(onProcessingFinished(bool, bool)));
-        connect( thread, SIGNAL(started()), delayac3, SLOT(delayFile()));
-        connect( delayac3, SIGNAL(ProcessingFinished(bool, bool)), thread, SLOT(quit()));
+        connect( workerThread, SIGNAL(started()), delayac3, SLOT(delayFile()));
+        connect( delayac3, SIGNAL(ProcessingFinished(bool, bool)), workerThread, SLOT(quit()));
         connect( delayac3, SIGNAL(ProcessingFinished(bool, bool)), delayac3, SLOT(deleteLater()));
-        connect( thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
 
-        thread->start();
+        workerThread->start();
     }
     else
     {
@@ -1211,7 +1207,7 @@ void DelayCut::on_processButton_clicked()
 
 void DelayCut::on_abortButton_clicked()
 {
-    emit abort();
+    workerThread->requestInterruption();
 }
 
 void DelayCut::onProcessingFinished(bool success, bool abort)

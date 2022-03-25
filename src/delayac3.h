@@ -34,7 +34,6 @@ class Delayac3 : public QObject
 
 public slots:
     void delayFile();
-    void abort();
 
 public:
     Delayac3(QString inputFileName, QString outputFileName, QString logFileName, FILEINFO* fileInfo, bool isCLI, QString fixCRC, bool writeConsole);
@@ -82,7 +81,6 @@ private:
     bool isCLI;
     QString fixCRC;
     bool writeConsole;
-    bool bAbort;
 
     void printline(QString csLinea, bool writeConsole);
     void printlog(FILE *logFile, QString csLinea, bool isCLI, bool writeConsole);
