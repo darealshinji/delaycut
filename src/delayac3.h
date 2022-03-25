@@ -24,6 +24,7 @@
 
 #include <QObject>
 #include <cstdio>
+#include "frame.h"
 
 struct FILEINFO;
 
@@ -33,60 +34,55 @@ class Delayac3 : public QObject
 
 public slots:
     void delayFile();
+    void abort();
 
 public:
-    Delayac3();
+    Delayac3(QString inputFileName, QString outputFileName, QString logFileName, FILEINFO* fileInfo, bool isCLI, QString fixCRC, bool writeConsole);
     ~Delayac3();
-    void SetDelayValues(FILE *inputFile, FILE *outputFile, FILE *logFile, FILEINFO* fileInfo, bool isCLI, bool *abort, QString fixCRC, bool writeConsole, QString extension);
-    void ac3_crc_init();
-    void delayac3();
-    void delayeac3();
-    void delaydts();
-    void delaympa();
-    void delaywav();
-    qint32 getwavinfo(FILE *in, FILEINFO *fileinfo);
-    qint32 getac3info(FILE *in, FILEINFO *fileinfo);
-    qint32 getac3info (FILE *in, FILEINFO *fileinfo, bool eac3);
-    qint32 geteac3info (FILE *in, FILEINFO *fileinfo);
-    qint32 getdtsinfo(FILE *in, FILEINFO *fileinfo);
-    qint32 getmpainfo(FILE *in, FILEINFO *fileinfo);
-    qint32 gettargetinfo(FILEINFO *fileinfo, qreal startDelay, qreal endDelay, qreal startCut, qreal endCut, qreal startSilence, qreal lengthSilence);
-    qint64 round(double value);
+    void delayac3(FILE* inputFile, FILE* outputFile, FILE* logFile);
+    void delayeac3(FILE* inputFile, FILE* outputFile, FILE* logFile);
+    void delaydts(FILE* inputFile, FILE* outputFile, FILE* logFile);
+    void delaympa(FILE* inputFile, FILE* outputFile, FILE* logFile);
+    void delaywav(FILE* inputFile, FILE* outputFile, FILE* logFile);
+    static bool getFileInfo(QString inputFileName, FILEINFO *fileinfo);
+    static qint32 gettargetinfo(FILEINFO *fileinfo, qreal startDelay, qreal endDelay, qreal startCut, qreal endCut, qreal startSilence, qreal lengthSilence);
+    static qint64 round(double value);
 
 signals:
     void UpdateProgress(qint32 progressValue);
-    void ProcessingFinished(bool success);
+    void ProcessingFinished(bool success, bool abort);
 
 private:
-    quint32 ac3_crc(uchar *data, qint32 n, quint32 crc);
-    quint32 ac3_crc_bit(uchar *data, qint32 n, quint32 crc);
-    QString compute_time_string(qint64 i64, qreal dFrameduration);
-    quint32 getbits(qint32 number, uchar *p_frame);
-    quint32 mul_poly(quint32 a, quint32 b, quint32 poly);
-    quint32 pow_poly(quint32 a, quint32 n, quint32 poly);
-    qint32 readac3frame(FILE *filein, uchar *p_frame);
-    qint32 readdtsframe(FILE *filein, uchar *p_frame);
-    qint32 readeac3frame(FILE *filein, uchar *p_frame);
-    qint32 readmpaframe(FILE *filein, uchar *p_frame);
-    qint32 readwavsample(FILE *filein, uchar *p_frame, qint32 nubytes);
-    void writeac3frame(FILE *fileout, uchar *p_frame);
-    void writeeac3frame(FILE *fileout, uchar *p_frame);
-    void writedtsframe(FILE *fileout, uchar *p_frame);
-    void writempaframe(FILE *fileout, uchar *p_frame);
-    void writewavsample(FILE *fileout, uchar *p_frame, qint32 nubytes);
+    static quint32 ac3_crc(const uchar *data, qint32 n, quint32 crc);
+    static quint32 ac3_crc_bit(const uchar *data, qint32 n, quint32 crc);
+    static QString compute_time_string(qint64 i64, qreal dFrameduration);
+    static quint32 mul_poly(quint32 a, quint32 b, quint32 poly);
+    static quint32 pow_poly(quint32 a, quint32 n, quint32 poly);
+    static qint32 getwavinfo(FILE* inputFile, FILEINFO *fileInfo);
+    static qint32 getac3info (FILE* inputFile, FILEINFO *fileInfo, bool eac3);
+    static qint32 getdtsinfo(FILE* inputFile, FILEINFO *fileInfo);
+    static qint32 getmpainfo(FILE* inputFile, FILEINFO *fileInfo);
+    static uint readac3frame(FILE *filein, Frame& frame);
+    static uint readdtsframe(FILE *filein, Frame& frame);
+    static uint readeac3frame(FILE *filein, Frame& frame);
+    static uint readmpaframe(FILE *filein, Frame& frame);
+    static uint readwavsample(FILE *filein, Frame& frame, uint nubytes);
+    static void writeac3frame(FILE *fileout, const Frame& p_frame);
+    static void writeeac3frame(FILE *fileout, const Frame& p_frame);
+    static void writedtsframe(FILE *fileout, const Frame& p_frame);
+    static void writempaframe(FILE *fileout, const Frame& p_frame);
+    static void writewavsample(FILE *fileout, const Frame& p_frame, qint32 nubytes);
+    void ac3_crc_init();
 
-    quint32 p_bit;
-    quint32 crc_table[256];
-    bool tooManyErrors;
-    FILE *inputFile;
-    FILE *outputFile;
-    FILE *logFile;
+    static quint32 crc_table[256];
+    QString inputFileName;
+    QString outputFileName;
+    QString logFileName;
     FILEINFO* fileInfo;
     bool isCLI;
-    bool *abort;
     QString fixCRC;
     bool writeConsole;
-    QString extension;
+    bool bAbort;
 
     void printline(QString csLinea, bool writeConsole);
     void printlog(FILE *logFile, QString csLinea, bool isCLI, bool writeConsole);

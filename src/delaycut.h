@@ -45,7 +45,7 @@ class DelayCut : public QMainWindow
     Q_OBJECT
 
 public slots:
-    void onProcessingFinished(bool success);
+    void onProcessingFinished(bool success, bool abort);
 
 public:
     explicit DelayCut(int argc, char *argv[], QWidget *parent = 0);
@@ -80,9 +80,12 @@ private slots:
     void on_fpsLineEdit_textChanged();
     void on_abortButton_clicked();
 
+signals:
+    void abort();
+
 private:
     Ui::DelayCut *ui;
-    Delayac3 *delayac3;
+    //Delayac3 *delayac3;
     QString lastOpenDir;
     QString lastSaveDir;
     QString crcMode;
@@ -92,13 +95,13 @@ private:
     FILE* inputFile;
     FILE* outputFile;
     FILE* logFile;
-    bool abort, isCLI, writeConsole, isCut;
+    bool isCLI=false, writeConsole=false, isCut=false;
     QString currentInputMode;
     int tabWidth, sizeOfSpace;
     QFontMetrics *currentFont;
     qreal startCut, endCut, startDelay, endDelay, startSilence, lengthSilence, fps;
     QString inFileName, outFileName, logFileName;
-    QThread *workerThread;
+    //QThread *workerThread;
     QString versionString;
 
     void CalculateTarget();

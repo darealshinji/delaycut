@@ -14,13 +14,15 @@ INCLUDEPATH += src
 SOURCES    += src/main.cpp\
               src/delaycut.cpp \
               src/delayac3.cpp \
-              src/dragdroplineedit.cpp
+              src/dragdroplineedit.cpp \
+              src/frame.cpp
 
 HEADERS    += src/delaycut.h \
               src/sil48.h \
               src/delayac3.h \
               src/dc_types.h \
-              src/dragdroplineedit.h
+              src/dragdroplineedit.h \
+              src/frame.h
 
 FORMS      += src/delaycut.ui
 

@@ -13,6 +13,7 @@
 /.qmake.cache
 /.qmake.stash
 /delaycut_plugin_import.cpp
+/build
 *.pro.user
 *.pro.user.*
 *.qbs.user

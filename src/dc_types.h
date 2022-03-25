@@ -21,6 +21,7 @@
 #define DC_TYPES_H
 
 #include <QString>
+#include "frame.h"
 
 // actions in crc errors
 #define CRC_IGNORE 0
@@ -34,7 +35,6 @@
 #define WF_SILENCE 2
 
 #define MAXSUBSTREAMS 64
-#define MAXFRAMESIZE 16384
 
 struct FILEINFO {
     QString type;
@@ -61,7 +61,7 @@ struct FILEINFO {
     qint64 i64LengthSilenceFrame;
     qint64 i64frameinfo;
     qreal dNotFixedDelay;
-    uchar silence[MAXSUBSTREAMS][MAXFRAMESIZE];
+    Frame silence[MAXSUBSTREAMS];
 };
 
 #endif // DC_TYPES_H
