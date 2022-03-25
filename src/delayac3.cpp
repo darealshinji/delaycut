@@ -893,11 +893,6 @@ void Delayac3::delayac3(FILE* inputFile, FILE* outputFile, FILE* logFile)
                 cal_crc2 = ac3_crc(frame.getData() + 2 * frame_size_58, (frame_size - frame_size_58) * 2 - 2, 0);
 
                 bCRCError=false;
-                csAux = QString("Time %1; Frame#= %2.  Crc1 error %3: read = %4%5; calculated=%6%7")
-                                .arg(csTime).arg(i64 + 1).arg(fixCRC)
-                                .arg(frame[2], 2, 16, QChar('0')).arg(frame[3], 2, 16, QChar('0'))
-                                .arg(cal_crc1 >> 8, 2, 16, QChar('0')).arg(cal_crc1 & 0xff, 2, 16, QChar('0'));
-                printlog(logFile, csAux, isCLI, writeConsole);
                 if (frame[2]!=(cal_crc1 >> 8) ||
                     frame[3]!=(cal_crc1 & 0xff) )
                 {

@@ -788,7 +788,7 @@ void DelayCut::GetInputFileInfo()
 
     if (fileInfo->type != "wav")
     {
-        ui->infoTextEdit->insertPlainText(QString("Bytes per Frame    %1\n").arg(fileInfo->dBytesperframe, 9, 'L', 4));
+        ui->infoTextEdit->insertPlainText(QString("Bytes per Frame   %1\n").arg(fileInfo->dBytesperframe, 9, 'L', 4));
     }
     else
     {
