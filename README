@@ -61,3 +61,18 @@ Cuts start at 10320 msec and ends at 15200 msec. Delay correction of 100 msec.
 
 Automatic delay correction based on the filename (-500 msec in this case)
     delaycut -auto "myfile DELAY -500ms.ac3"
+
+---------------------
+
+Build instructions
+
+To build using a docker container:
+* clone the repo
+* cd delaycut
+* docker run -t -i --rm -v $PWD:$PWD garthk/qt-build:bionic-5.12.0 bash
+* <inside the container>
+* apt-get update && apt-get install -y libgl-dev libgtk2.0-dev
+* cd <dir-of-delaycut>
+* qmake
+* make
+

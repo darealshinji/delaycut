@@ -99,9 +99,8 @@ qint32 layerIIsub2b[4]= {11,12,7,0};
 qint32 layerIIsub2c[4]= {2,6,0,0};
 qint32 layerIIsub2d[4]= {2,10,0,0};
 
-uchar silence[MAXFRAMESIZE];
+Frame silence;
 
-uchar* p_silence;
 ////////////////////////////////////////////////////////
 //
 //      AC3  silence frames: 2 channels and 6 channels

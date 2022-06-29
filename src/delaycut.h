@@ -45,10 +45,10 @@ class DelayCut : public QMainWindow
     Q_OBJECT
 
 public slots:
-    void onProcessingFinished(bool success);
+    void onProcessingFinished(bool success, bool abort);
 
 public:
-    explicit DelayCut(QWidget *parent = 0);
+    explicit DelayCut(int argc, char *argv[], QWidget *parent = 0);
     ~DelayCut();
     void execCLI(int argc);
 
@@ -68,6 +68,8 @@ private slots:
     void on_endCuttingLineEdit_textEdited(const QString &endCut);
     void on_startDelayLineEdit_textEdited(const QString &startDelay);
     void on_endDelayLineEdit_textEdited(const QString &endDelay);
+    void on_startSilenceLineEdit_textEdited(const QString &startSilence);
+    void on_lengthSilenceLineEdit_textEdited(const QString &lengthSilence);
     void on_cutFileCheckBox_toggled(bool checked);
     void on_processButton_clicked();
     void onUpdateProgress(qint32);
@@ -80,7 +82,7 @@ private slots:
 
 private:
     Ui::DelayCut *ui;
-    Delayac3 *delayac3;
+    //Delayac3 *delayac3;
     QString lastOpenDir;
     QString lastSaveDir;
     QString crcMode;
@@ -90,13 +92,13 @@ private:
     FILE* inputFile;
     FILE* outputFile;
     FILE* logFile;
-    bool abort, isCLI, writeConsole, isCut;
+    bool isCLI=false, writeConsole=false, isCut=false;
     QString currentInputMode;
     int tabWidth, sizeOfSpace;
     QFontMetrics *currentFont;
-    qreal startCut, endCut, startDelay, endDelay, fps;
+    qreal startCut, endCut, startDelay, endDelay, startSilence, lengthSilence, fps;
     QString inFileName, outFileName, logFileName;
-    QThread *workerThread;
+    QThread* workerThread;
     QString versionString;
 
     void CalculateTarget();
