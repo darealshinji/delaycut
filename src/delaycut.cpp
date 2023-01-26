@@ -1362,10 +1362,11 @@ qint32 DelayCut::logTargetInfo(QString fileName, QString extension)
     }
 }
 
-void DelayCut::on_inputUnitsComboBox_activated(const QString &itemText)
+void DelayCut::on_inputUnitsComboBox_textActivated(const QString &itemText)
 {
     QString startLabel, endLabel, lengthLabel;
     qint32 maxLength;
+    bool fpsEnabled;
 
     if (ui->fpsLineEdit->text().contains("/"))
     {
@@ -1423,7 +1424,9 @@ void DelayCut::on_inputUnitsComboBox_activated(const QString &itemText)
         }
     }
 
-    ui->fpsLineEdit->setEnabled(itemText == "Video frames");
+    fpsEnabled = (itemText == "Video frames");
+    ui->fpsLabel->setEnabled(fpsEnabled);
+    ui->fpsLineEdit->setEnabled(fpsEnabled);
 
     if (itemText == "Seconds")
     {
