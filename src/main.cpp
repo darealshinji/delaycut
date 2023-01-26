@@ -29,18 +29,16 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     DelayCut w(argc, argv);
 
-    bool isGUI = argc < 3;
-
-    if (isGUI)
+    if (argc >= 2 && argv[1][0] == '-')
+    {
+        w.execCLI(argc);
+    }
+    else
     {
 #ifdef Q_OS_WIN
         FreeConsole();
 #endif
         w.show();
-    }
-    else
-    {
-        w.execCLI(argc);
     }
     return a.exec();
 }

@@ -23,7 +23,9 @@
 #include "delaycut.h"
 #include "ui_delaycut.h"
 
+#if QT_VERSION < 0x060000
 #include <QDesktopWidget>
+#endif
 #include <QIntValidator>
 #include <QDoubleValidator>
 #include <QFileDialog>
@@ -42,10 +44,14 @@
 #include <cinttypes>
 
 #ifdef Q_OS_WIN
-#include "windows.h"
-#include "io.h"
-#include "fcntl.h"
+#include <windows.h>
+#include <io.h>
+#include <fcntl.h>
+#define ICON_RES ":/icon.ico"
+#else
+#define ICON_RES ":/icon.png"
 #endif
+
 
 DelayCut::DelayCut(int argc, char *argv[], QWidget *parent) :
     QMainWindow(parent),
@@ -71,12 +77,12 @@ DelayCut::DelayCut(int argc, char *argv[], QWidget *parent) :
     stringModel = new QStringListModel;
     fileInfo = new FILEINFO;
     this->setWindowTitle(versionString);
-#ifdef Q_OS_WIN
-    this->setWindowIcon(QIcon(":/icon.ico"));
-#else
-    this->setWindowIcon(QIcon(":/icon.png"));
-#endif
+    this->setWindowIcon(QIcon(ICON_RES));
+
+#if QT_VERSION < 0x060000
+    /* deprecated */
     this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), qApp->desktop()->availableGeometry()));
+#endif
 
     if(argc > 1) {
         ui->inputFileLineEdit->setText(argv[1]);
@@ -96,7 +102,7 @@ DelayCut::DelayCut(int argc, char *argv[], QWidget *parent) :
     ui->lengthSilenceLineEdit->setValidator(cutValidator);
     ui->lengthSilenceLineEdit->setText(QString::number((int) lengthSilence));
 
-    fpsValidator = new QRegExpValidator(QRegExp("[0-9]{1,6}[/|.][0-9]{1,4}"), this);
+    fpsValidator = new QRegularExpressionValidator(QRegularExpression("[0-9]{1,6}[/|.][0-9]{1,4}"), this);
     ui->fpsLineEdit->setValidator(fpsValidator);
     ui->fpsLineEdit->setText(QString::number(fps, 'f', 2));
 
@@ -246,7 +252,7 @@ void DelayCut::execCLI(int argc)
             }
             if (fpsParam.contains("/"))
             {
-                QStringList fpsList = fpsParam.split('/', QString::SkipEmptyParts);
+                QStringList fpsList = fpsParam.split('/', Qt::SkipEmptyParts);
                 if (fpsList.count() == 2 && fpsList.at(1) != "0")
                 {
                     fps = (fpsList.at(0).toDouble() / fpsList.at(1).toDouble());
@@ -259,7 +265,7 @@ void DelayCut::execCLI(int argc)
             }
             else
             {
-                if (sscanf(fpsParam.toAscii().constData(), "%lf", &fps) != 1)
+                if (sscanf(fpsParam.toUtf8().constData(), "%lf", &fps) != 1)
                 {
                     fprintf(stderr, "No valid fps value specified.\n");
                     exit(EXIT_FAILURE);
@@ -288,7 +294,7 @@ void DelayCut::execCLI(int argc)
         else if ((parameter == "-startdelay" || parameter == "-delay") && i < (argc - 1))
         {
             i++;
-            if (sscanf(args.at(i).toAscii().constData(), "%lf", &startDelay) != 1)
+            if (sscanf(args.at(i).toUtf8().constData(), "%lf", &startDelay) != 1)
             {
                 fprintf(stderr, "No valid start delay value specified.\n");
                 exit(EXIT_FAILURE);
@@ -297,7 +303,7 @@ void DelayCut::execCLI(int argc)
         else if (parameter == "-enddelay" && i < (argc - 1))
         {
             i++;
-            if (sscanf(args.at(i).toAscii().constData(), "%lf", &endDelay) != 1)
+            if (sscanf(args.at(i).toUtf8().constData(), "%lf", &endDelay) != 1)
             {
                 fprintf(stderr, "No valid end delay value specified.\n");
                 exit(EXIT_FAILURE);
@@ -306,7 +312,7 @@ void DelayCut::execCLI(int argc)
         else if (parameter == "-startcut" && i < (argc - 1))
         {
             i++;
-            if (sscanf(args.at(i).toAscii().constData(), "%lf", &startCut) != 1)
+            if (sscanf(args.at(i).toUtf8().constData(), "%lf", &startCut) != 1)
             {
                 fprintf(stderr, "No valid start cut value specified.\n");
                 exit(EXIT_FAILURE);
@@ -316,7 +322,7 @@ void DelayCut::execCLI(int argc)
         else if (parameter == "-endcut" && i < (argc - 1))
         {
             i++;
-            if (sscanf(args.at(i).toAscii().constData(), "%lf", &endCut) != 1)
+            if (sscanf(args.at(i).toUtf8().constData(), "%lf", &endCut) != 1)
             {
                 fprintf(stderr, "No valid end cut value specified.\n");
                 exit(EXIT_FAILURE);
@@ -326,7 +332,7 @@ void DelayCut::execCLI(int argc)
         else if (parameter == "-startsilence" && i < (argc - 1))
         {
             i++;
-            if (sscanf(args.at(i).toAscii().constData(), "%lf", &startSilence) != 1)
+            if (sscanf(args.at(i).toUtf8().constData(), "%lf", &startSilence) != 1)
             {
                 fprintf(stderr, "No valid start silence value specified.\n");
                 exit(EXIT_FAILURE);
@@ -336,7 +342,7 @@ void DelayCut::execCLI(int argc)
         else if (parameter == "-lengthsilence" && i < (argc - 1))
         {
             i++;
-            if (sscanf(args.at(i).toAscii().constData(), "%lf", &lengthSilence) != 1)
+            if (sscanf(args.at(i).toUtf8().constData(), "%lf", &lengthSilence) != 1)
             {
                 fprintf(stderr, "No valid silence length value specified.\n");
                 exit(EXIT_FAILURE);

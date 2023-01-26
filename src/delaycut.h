@@ -82,7 +82,6 @@ private slots:
 
 private:
     Ui::DelayCut *ui;
-    //Delayac3 *delayac3;
     QString lastOpenDir;
     QString lastSaveDir;
     QString crcMode;
