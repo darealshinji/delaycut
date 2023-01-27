@@ -2,7 +2,7 @@
     2007-09-11 E-AC3 support added by www.madshi.net
     2009 Chumbo mod to autofill delay values from filename
     Copyright (C) 2010 by Adam Thomas-Murphy
-    Copyright (C) 2014, 2016-2017 by djcj <djcj@gmx.de>
+    Copyright (C) 2014-2023 by djcj <djcj@gmx.de>
 
     This file is part of DelayCut.
 
@@ -112,8 +112,6 @@ DelayCut::DelayCut(int argc, char *argv[], QWidget *parent) :
     QFont font("Monospace");
     font.setStyleHint(QFont::TypeWriter);
     ui->infoTextEdit->setFont(font);
-
-//    workerThread = new QThread;
 }
 
 DelayCut::~DelayCut()

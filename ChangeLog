@@ -1,3 +1,6 @@
+v1.4.3.10
+BugFix:      Several bugfixes submitted by contributors.
+
 v1.4.3.9
 BugFix:      AC3 and DTS fixes (thanks to tebasuna51).
 BugFix:      Output file name is no longer ignored.
