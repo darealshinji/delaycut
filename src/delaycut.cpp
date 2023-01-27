@@ -33,13 +33,14 @@
 #include <QMessageBox>
 #include <QFontMetrics>
 #include <QStringList>
-#include <cmath>
 #include <QThread>
+#include <QFlags>
 
 #include <wchar.h>
 #include "delayac3.h"
 #include "dc_types.h"
 
+#include <cmath>
 #include <cstdio>
 #include <cinttypes>
 
@@ -250,7 +251,11 @@ void DelayCut::execCLI(int argc)
             }
             if (fpsParam.contains("/"))
             {
+#if QT_VERSION < 0x051000
+                QStringList fpsList = fpsParam.split('/', QString::SkipEmptyParts);
+#else
                 QStringList fpsList = fpsParam.split('/', Qt::SkipEmptyParts);
+#endif
                 if (fpsList.count() == 2 && fpsList.at(1) != "0")
                 {
                     fps = (fpsList.at(0).toDouble() / fpsList.at(1).toDouble());
