@@ -17,6 +17,13 @@
     along with DelayCut.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*fix apple sillicon build*/
+
+#ifdef __APPLE__
+#define stat64 stat
+#define fstat64 fstat
+#endif
+
 #ifndef DC_TYPES_H
 #define DC_TYPES_H
 

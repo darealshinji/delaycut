@@ -42,6 +42,10 @@ win32-msvc* {
   !contains(QMAKE_HOST.arch, x86_64):QMAKE_LFLAGS += /LARGEADDRESSAWARE
 }
 
+macx {
+  ICON = src/icon.icns
+}
+
 QMAKE_CLEAN += qrc_icon_ico.cpp \
                qrc_icon_ico.o \
                qrc_icon_png.cpp \
