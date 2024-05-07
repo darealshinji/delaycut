@@ -30,6 +30,15 @@
 #include <QFileInfo>
 #include <QThread>
 
+/* Probably better fix for building on mac */
+#if defined(__APPLE__)
+#include <sys/cdefs.h>
+#endif
+#if defined(__APPLE__) && defined(_DARWIN_FEATURE_ONLY_64_BIT_INODE)
+#define stat64 stat
+#define fstat64 fstat
+#endif
+
 #define NUMREAD 8
 #define MAXBYTES_PER_FRAME 2*1280
 #define MAXLOGERRORS 100
