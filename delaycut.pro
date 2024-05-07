@@ -46,6 +46,7 @@ macx {
   ICON = src/icon.icns
   #If you are using qt from brew, remove line below
   QMAKE_APPLE_DEVICE_ARCHS = x86_64 arm64
+  QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.15
 }
 
 QMAKE_CLEAN += qrc_icon_ico.cpp \
